@@ -4,7 +4,7 @@
 
 class Matrix:
 
-    def __init__(self, r:int, c:int, zeroes=True, empty=False, rand_float=False, rand_int=False):
+    def __init__(self, r:int, c:int, mode:str='zero', fill:int=0):
 
         '''
 
@@ -17,38 +17,53 @@ class Matrix:
         
         ### Optional arguments:
 
-        `zeroes` *(default)*: Populate all elements of the Matrix with **zeroes** \\
-        `empty`: Leave all elements of the Matrix **empty** \\
-        `rand_float`: Populate all elements of the Matrix with **random floats** \\
-        `rand_int`: Populate all elements of the Matrix with **random integers**
+        `mode` *(default="zero")*: Populate all elements of the Matrix with: zeroes ("zero"), empty ("empty"), fill ("fill")
+        `fill` *(default=0)*: If using `mode="fill"`, populates Matrix with real number `fill`
         
         '''
+        
+        if mode not in {"zero", "empty", "fill"}:
+            raise ValueError(f"Unsupported mode '{mode}'. Use 'zero', 'empty' or 'fill'.")
 
         self.r = r
         self.c = c
-        self.matrix = [[0]*c]*r if zeroes else [[]*c]*r if empty else [[0]*c]*r
-    
-        self.populate = 'z' if zeroes else 'e' if empty else 'ri' if rand_int else 'rf' if rand_float else 'z'
+
+        self.mode = mode
+        self.fill = fill
+
+        if mode =="zero":
+            self.matrix = [[0 for _ in range(c)] for _ in range(r)]
+        elif mode == "empty":
+            self.matrix = [[None for _ in range(c)] for _ in range(r)]
+        elif mode =="fill":
+            self.matrix = [[fill for _ in range(c)] for _ in range(r)]
+
+    def __repr__(self):
+        return f'Matrix({self.r}, {self.c}, "{self.mode}")'
 
     def show(self):
 
         '''
         
         Returns string in this format:
-            `rows x cols 'populate_type'`
+            `rows x cols`
         
         '''
 
-        return f"{self.r}x{self.c} '{self.populate}'"
+        return f"{self.r}x{self.c}"
+    
+    def det(self):
 
-'''
+        '''
+        
+        ### Only supported for 2x2 matrices for now
+        Returns the single value for the determinant of the `Matrix`
+        
+        '''
 
-[
-[], []
-[], []
-]
+        if self.r != 2 or self.c != 2:
+            raise ValueError("Determinant only defined for 2x2 matrices")
+        
+        det = (self.matrix[0][0]*self.matrix[1][1]) - (self.matrix[0][1]*self.matrix[1][0])
 
-[[], []], [[], []]
-
-
-'''
+        return det
