@@ -2,9 +2,12 @@
 # can be used to create an nxk matrix
 # should have a description function to give details on matrix in a concise format
 
+import random
+from copy import deepcopy
+
 class Matrix:
 
-    def __init__(self, r:int, c:int, mode:str='zero', fill:int=0):
+    def __init__(self, r:int=None, c:int=None, mode:str='zero', fill:int=0, man=None):
 
         '''
 
@@ -17,13 +20,24 @@ class Matrix:
         
         ### Optional arguments:
 
-        `mode` *(default="zero")*: Populate all elements of the Matrix with: zeroes ("zero"), empty ("empty"), fill ("fill")
+        `mode` *(default="zero")*: Populate all elements of the Matrix with: zeroes ("zero"), empty ("empty"), fill ("fill") \\
         `fill` *(default=0)*: If using `mode="fill"`, populates Matrix with real number `fill`
         
         '''
         
-        if mode not in {"zero", "empty", "fill"}:
-            raise ValueError(f"Unsupported mode '{mode}'. Use 'zero', 'empty' or 'fill'.")
+        if man:
+            
+            res = MatOPS.dims(man)
+
+            self.r = res[0]
+            self.c = res[1]
+
+            self.matrix = man
+
+            return
+        
+        if mode not in {"zero", "empty", "fill", "rand"}:
+            raise ValueError(f"Unsupported mode '{mode}'. Use 'zero', 'empty', 'rand', or 'fill'.")
 
         self.r = r
         self.c = c
@@ -37,33 +51,78 @@ class Matrix:
             self.matrix = [[None for _ in range(c)] for _ in range(r)]
         elif mode =="fill":
             self.matrix = [[fill for _ in range(c)] for _ in range(r)]
+        elif mode == "rand":
+            self.matrix = [[random.randint(0,5) for _ in range(c)] for _ in range(r)]
 
     def __repr__(self):
-        return f'Matrix({self.r}, {self.c}, "{self.mode}")'
+        return f'Matrix({self.r}, {self.c}, "{self.mode if self.mode else "man"}")'
 
     def show(self):
 
-        '''
+        """
         
         Returns string in this format:
             `rows x cols`
         
-        '''
+        """
 
         return f"{self.r}x{self.c}"
+
+class MatOPS:
+
+    def dims(matrix):
+
+        """
+        
+        Returns the dimensions of a matrix represented by lists \\
+        Use on `list` type only (`Matrix` type is unsupported for now)
+
+        """
+
+        if not type(matrix) == list:
+            return []
+        return [len(matrix)] + MatOPS.dims(matrix[0])
+
+
+    def det(matrix:Matrix):
+
+        """
+        
+        Returns the single value for the determinant of the `Matrix`.
+        Input: `Matrix` object or a valid square matrix of [nested] lists
+        
+        """
+
+        if type(matrix) == list:
+            
+            matrix = Matrix(man=matrix)
+
+            if matrix.r != matrix.c:
+                raise ValueError("Determinant is only defined for square matrices")
+
+        elif type(matrix) != Matrix:
+
+            raise TypeError("Input must be a square Matrix object or a list of lists")
+
+        det = 0
+
+        sub = deepcopy(matrix.matrix)
+
+        if matrix.r == 2 and matrix.c == 2:
+            return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
     
-    def det(self):
+        elif matrix.r == matrix.c > 2:
 
-        '''
-        
-        ### Only supported for 2x2 matrices for now
-        Returns the single value for the determinant of the `Matrix`
-        
-        '''
+            for i,j in enumerate(sub[0]):
+                
+                t = deepcopy(sub)[1:]
 
-        if self.r != 2 or self.c != 2:
-            raise ValueError("Determinant only defined for 2x2 matrices")
-        
-        det = (self.matrix[0][0]*self.matrix[1][1]) - (self.matrix[0][1]*self.matrix[1][0])
+                for k,r in enumerate(t):
+                    del t[k][i]
+                            
+                res = MatOPS.det(Matrix(man=t))
+
+                if type(res) == int:
+                    det += ((-1) ** i) * j * res # cofactor
 
         return det
