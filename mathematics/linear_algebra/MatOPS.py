@@ -169,7 +169,7 @@ class MatOPS:
         """
         
         if type(matrix) == Matrix:
-            matrix = matrix.matrix
+            matrix = deepcopy(matrix.matrix)
 
         for r, row in enumerate(matrix):
             for c, col in enumerate(row):
