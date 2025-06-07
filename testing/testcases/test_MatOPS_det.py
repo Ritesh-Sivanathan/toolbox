@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from ...mathematics.linear_algebra.matrices import Matrix, MatOPS
+from toolbox.mathematics.linear_algebra.matrices import Matrix, MatOPS
 
 class TestDeterminant(unittest.TestCase):
 
