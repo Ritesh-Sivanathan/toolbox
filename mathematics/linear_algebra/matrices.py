@@ -88,7 +88,7 @@ class MatOPS:
 
         """
         
-        Returns the single value for the determinant of the `Matrix`.
+        Returns the single value for the determinant of the `Matrix`. \\
         Input: `Matrix` object or a valid square matrix of [nested] lists
         
         """
@@ -126,3 +126,27 @@ class MatOPS:
                     det += ((-1) ** i) * j * res # cofactor
 
         return det
+    
+    def T(matrix: Matrix):
+
+        """
+        
+        Transpose a `Matrix` object or in a matrix of [nested] lists
+        
+        """
+
+        new_matrix = []
+
+        if type(matrix) == list:
+            matrix = Matrix(man=matrix)
+        
+        for c_index in range(matrix.c):
+
+            row = []
+
+            for r_index in range(matrix.r):
+                row.append(matrix.matrix[r_index][c_index])
+                
+            new_matrix.append(row)
+        
+        return new_matrix
