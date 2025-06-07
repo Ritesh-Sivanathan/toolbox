@@ -1,7 +1,3 @@
-# define matrix class
-# can be used to create an nxk matrix
-# should have a description function to give details on matrix in a concise format
-
 import random
 from copy import deepcopy
 
@@ -219,3 +215,7 @@ class Matrix:
                 matrix[r][c] = round(col*scalar,ndigits=precision)
         
         return Matrix(man=matrix)
+    
+    def is_square(self):
+
+        return self.r == self.c
