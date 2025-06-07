@@ -26,4 +26,4 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m unittest discover -s toolbox/testing -p "*.py"
+          python -m unittest discover -s /testing -p "*.py"
