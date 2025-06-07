@@ -1,4 +1,6 @@
-from toolbox.mathematics.linear_algebra.matrices import Matrix, MatOPS
+from toolbox.mathematics.linear_algebra.matrices import Matrix
+from toolbox.mathematics.linear_algebra.MatOPS import MatOPS
+
 import unittest
 import sympy
 
