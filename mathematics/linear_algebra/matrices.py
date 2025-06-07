@@ -27,7 +27,7 @@ class Matrix:
         
         if man:
             
-            res = MatOPS.dims(man)
+            res = Matrix.dims(man)
 
             self.r = res[0]
             self.c = res[1]
@@ -58,37 +58,6 @@ class Matrix:
     def __repr__(self):
         return f'Matrix({self.r}, {self.c}, "{self.mode if self.mode else "man"}")'
 
-    def show(self):
-
-        """
-        
-        Returns string in this format:
-            `rows x cols`
-        
-        """
-
-        return f"{self.r}x{self.c}"
-
-class MatOPS:
-
-    @staticmethod
-    def _preprocess(matrix, return_type="list"):
-        
-        if return_type not in {"list", "matrix"}:
-            raise ValueError("The only supported return types are List and Matrix")
-
-        if isinstance(matrix, Matrix) and return_type=="list":
-            return matrix.matrix
-        
-        elif isinstance(matrix, list) and return_type == "matrix":
-            return Matrix(man=matrix)
-        
-        elif (isinstance(matrix, list) and return_type == "list") or (isinstance(matrix, Matrix) and return_type == "matrix"):
-            return matrix
-        
-        else:
-            raise TypeError("The provided matrix must be of type List or Matrix")
-
     @staticmethod
     def dims(matrix):
 
@@ -98,34 +67,32 @@ class MatOPS:
         Use on `list` type only (`Matrix` type is unsupported for now)
 
         """
-
-        if not type(matrix) == list:
+      
+        if not isinstance(matrix, list):
             return []
-        return [len(matrix)] + MatOPS.dims(matrix[0])
-
-    @staticmethod
-    def det(matrix:Matrix):
+        if not matrix:
+            return [0]
+        return [len(matrix)] + Matrix.dims(matrix[0])
+    
+    def det(self):
 
         """
         
         Returns the single value for the determinant of the `Matrix`. \\
-        Input: `Matrix` object or a valid square matrix of [nested] lists
         
         """
 
-        matrix = MatOPS._preprocess(matrix, return_type="matrix")
-
-        if matrix.r != matrix.c:
+        if self.r != self.c:
             raise ValueError("Determinant is only defined for square matrices")
 
         det = 0
 
-        sub = deepcopy(matrix.matrix)
+        sub = deepcopy(self.matrix)
 
-        if matrix.r == 2 and matrix.c == 2:
+        if self.r == 2 and self.c == 2:
             return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
     
-        elif matrix.r == matrix.c > 2:
+        elif self.r == self.c > 2:
 
             for i,j in enumerate(sub[0]):
                 
@@ -134,38 +101,35 @@ class MatOPS:
                 for k,r in enumerate(t):
                     del t[k][i]
                             
-                res = MatOPS.det(Matrix(man=t))
+                res = Matrix(man=t).det()
 
                 if type(res) == int:
                     det += ((-1) ** i) * j * res # cofactor
 
         return det
-    
-    @staticmethod
-    def T(matrix: Matrix):
+
+    def T(self):
 
         """
         
-        Transpose a `Matrix` object or in a matrix of [nested] lists
+        Transpose `Matrix` object
         
         """
 
         new_matrix = []
-
-        matrix = MatOPS._preprocess(matrix, return_type="matrix")
         
-        for c_index in range(matrix.c):
+        for c_index in range(self.c):
 
             row = []
 
-            for r_index in range(matrix.r):
-                row.append(matrix.matrix[r_index][c_index])
+            for r_index in range(self.r):
+                row.append(self.matrix[r_index][c_index])
+
             new_matrix.append(row)
         
-        return new_matrix
-
-    @staticmethod
-    def cof(matrix):
+        return Matrix(man=new_matrix)
+    
+    def cof(self):
 
         """
         
@@ -174,18 +138,16 @@ class MatOPS:
         
         """
 
-        matrix = MatOPS._preprocess(matrix, return_type="matrix")
-
-        if matrix.r != matrix.c:
+        if self.r != self.c:
             raise ValueError("Determinant is only defined for square matrices")
 
         det = 0
 
-        sub = deepcopy(matrix.matrix)
+        sub = deepcopy(self.matrix)
 
         cofactor_matrix = []
 
-        if matrix.r == 2 and matrix.c == 2:
+        if self.r == 2 and self.c == 2:
             return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
     
         for r_index, row in enumerate(sub):
@@ -200,15 +162,14 @@ class MatOPS:
                 for k,r in enumerate(t):
                     del t[k][c_index]
                 
-                res = MatOPS.det(t)
+                res = Matrix(man=t).det()
                 row_cof_matrix.append(res*((-1)**(c_index+(r_index*3))))
             
             cofactor_matrix.append(row_cof_matrix)
         
-        return cofactor_matrix
-    
-    @staticmethod
-    def adjoint(matrix:Matrix):
+        return Matrix(man=cofactor_matrix)
+
+    def adjoint(self):
         
         """
 
@@ -216,37 +177,14 @@ class MatOPS:
         Adjoint = T(cof(A))
          
         """
-
-        matrix = MatOPS._preprocess(matrix, return_type="matrix")
-
             
-        if matrix.r != matrix.c:
+        if self.r != self.c:
             raise ValueError("Input matrix must be a square matrix (nxn dimensions)")
-            
-        return MatOPS.T(MatOPS.cof(matrix))
 
-    @staticmethod
-    def matmul(matrix: Matrix, scalar=None, precision=3):
+        return self.cof().T()
 
-        """
+    def inverse(self, precision=3):
 
-        Only supported for scalar by matrix multiplication (for now)
-
-        ``
-        
-        """
-        
-        if type(matrix) == Matrix:
-            matrix = matrix.matrix
-
-        for r, row in enumerate(matrix):
-            for c, col in enumerate(row):
-                matrix[r][c] = round(col*scalar,ndigits=precision)
-        
-        return matrix
-    
-    @staticmethod
-    def inverse(matrix: Matrix, precision=3):
         """
         Returns the inverse of a matrix if it is invertible. \\
 
@@ -257,15 +195,27 @@ class MatOPS:
         
         """
 
-        matrix = MatOPS._preprocess(matrix, return_type="matrix")
+        det = self.det()
 
-        det = MatOPS.det(matrix)
-
-        if det != 0:
-
-            new_matrix = MatOPS.adjoint(matrix)
-            return MatOPS.matmul(matrix=new_matrix, scalar=(1/det), precision=precision)
-
-        elif det == 0:
-            
+        if det == 0:
             raise ValueError("Matrix must have a non-zero determinant to be inverted.")
+
+        new_matrix = self.adjoint()
+        return new_matrix * (1/det)
+            
+
+    def __mul__(self, scalar, precision=3):
+
+        """
+
+        Only supported for scalar by matrix multiplication (for now)
+        
+        """
+
+        matrix = deepcopy(self.matrix)
+
+        for r, row in enumerate(matrix):
+            for c, col in enumerate(row):
+                matrix[r][c] = round(col*scalar,ndigits=precision)
+        
+        return Matrix(man=matrix)
