@@ -17,21 +17,21 @@ class TestTranspose(unittest.TestCase):
         A = [[1,0],[0,1]]
         B = [[1,0],[0,1]]
 
-        self.assertEqual(MatOPS.T(A),B)
+        self.assertEqual(Matrix(man=A).T().matrix, MatOPS.T(A),B)
     
     def test_random_3x3(self):
 
         A = Matrix(3,3,mode="rand")
         B = np.transpose(A.matrix)
 
-        self.assertTrue(np.array_equal(MatOPS.T(A), B))
+        self.assertTrue(np.array_equal(MatOPS.T(A), B, A.T().matrix))
     
     def test_random_4x4(self):
 
         A = Matrix(4,4,mode="rand")
         B = np.transpose(A.matrix)
 
-        self.assertTrue(np.array_equal(MatOPS.T(A),B))
+        self.assertTrue(np.array_equal(MatOPS.T(A),B, A.T().matrix))
 
 if __name__ == "__main__":
     unittest.main()
