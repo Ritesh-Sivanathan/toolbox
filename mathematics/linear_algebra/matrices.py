@@ -33,6 +33,7 @@ class Matrix:
             self.c = res[1]
 
             self.matrix = man
+            self.mode = "man"
 
             return
         
@@ -146,7 +147,75 @@ class MatOPS:
 
             for r_index in range(matrix.r):
                 row.append(matrix.matrix[r_index][c_index])
-                
             new_matrix.append(row)
         
         return new_matrix
+
+    def cof(matrix):
+
+        """
+        
+        Returns the Matrix as [nested] arrays for the cofactor matrix of the `Matrix`. \\
+        Input: `Matrix` object or a valid square matrix of [nested] lists
+        
+        """
+
+        if type(matrix) == list:
+            
+            matrix = Matrix(man=matrix)
+
+            if matrix.r != matrix.c:
+                raise ValueError("Determinant is only defined for square matrices")
+
+        elif type(matrix) != Matrix:
+
+            raise TypeError("Input must be a square Matrix object or a list of lists")
+
+        det = 0
+
+        sub = deepcopy(matrix.matrix)
+
+        cofactor_matrix = []
+
+        if matrix.r == 2 and matrix.c == 2:
+            return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
+    
+        for r_index, row in enumerate(sub):
+
+            row_cof_matrix = []
+
+            for c_index, col_element in enumerate(row):
+
+                t = deepcopy(sub)
+                t.pop(r_index)
+                
+                for k,r in enumerate(t):
+                    del t[k][c_index]
+                
+                res = MatOPS.det(t)
+                row_cof_matrix.append(res*((-1)**(c_index+(r_index*3))))
+            
+            cofactor_matrix.append(row_cof_matrix)
+        
+        return cofactor_matrix
+    
+    def adjoint(matrix:Matrix):
+        
+        """
+
+        Returns the adjoint of a `Matrix` or [nested] arrays as [nested] arrays
+        Adjoint = T(cof(A))
+         
+        """
+
+        if type(matrix) == list:
+            
+            matrix = Matrix(man=matrix)
+            
+            if matrix.r != matrix.c:
+                raise ValueError("Input matrix must be a square matrix (nxn dimensions)")
+            
+        elif type(matrix) != Matrix:
+            raise TypeError("Must provide either an array or Matrix object as input.")
+    
+        return MatOPS.T(MatOPS.cof(matrix))
