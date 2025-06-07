@@ -71,6 +71,25 @@ class Matrix:
 
 class MatOPS:
 
+    @staticmethod
+    def _preprocess(matrix, return_type="list"):
+        
+        if return_type not in {"list", "matrix"}:
+            raise ValueError("The only supported return types are List and Matrix")
+
+        if isinstance(matrix, Matrix) and return_type=="list":
+            return matrix.matrix
+        
+        elif isinstance(matrix, list) and return_type == "matrix":
+            return Matrix(man=matrix)
+        
+        elif (isinstance(matrix, list) and return_type == "list") or (isinstance(matrix, Matrix) and return_type == "matrix"):
+            return matrix
+        
+        else:
+            raise TypeError("The provided matrix must be of type List or Matrix")
+
+    @staticmethod
     def dims(matrix):
 
         """
@@ -84,7 +103,7 @@ class MatOPS:
             return []
         return [len(matrix)] + MatOPS.dims(matrix[0])
 
-
+    @staticmethod
     def det(matrix:Matrix):
 
         """
@@ -94,16 +113,10 @@ class MatOPS:
         
         """
 
-        if type(matrix) == list:
-            
-            matrix = Matrix(man=matrix)
+        matrix = MatOPS._preprocess(matrix, return_type="matrix")
 
-            if matrix.r != matrix.c:
-                raise ValueError("Determinant is only defined for square matrices")
-
-        elif type(matrix) != Matrix:
-
-            raise TypeError("Input must be a square Matrix object or a list of lists")
+        if matrix.r != matrix.c:
+            raise ValueError("Determinant is only defined for square matrices")
 
         det = 0
 
@@ -128,6 +141,7 @@ class MatOPS:
 
         return det
     
+    @staticmethod
     def T(matrix: Matrix):
 
         """
@@ -138,8 +152,7 @@ class MatOPS:
 
         new_matrix = []
 
-        if type(matrix) == list:
-            matrix = Matrix(man=matrix)
+        matrix = MatOPS._preprocess(matrix, return_type="matrix")
         
         for c_index in range(matrix.c):
 
@@ -151,6 +164,7 @@ class MatOPS:
         
         return new_matrix
 
+    @staticmethod
     def cof(matrix):
 
         """
@@ -160,16 +174,10 @@ class MatOPS:
         
         """
 
-        if type(matrix) == list:
-            
-            matrix = Matrix(man=matrix)
+        matrix = MatOPS._preprocess(matrix, return_type="matrix")
 
-            if matrix.r != matrix.c:
-                raise ValueError("Determinant is only defined for square matrices")
-
-        elif type(matrix) != Matrix:
-
-            raise TypeError("Input must be a square Matrix object or a list of lists")
+        if matrix.r != matrix.c:
+            raise ValueError("Determinant is only defined for square matrices")
 
         det = 0
 
@@ -199,6 +207,7 @@ class MatOPS:
         
         return cofactor_matrix
     
+    @staticmethod
     def adjoint(matrix:Matrix):
         
         """
@@ -208,14 +217,55 @@ class MatOPS:
          
         """
 
-        if type(matrix) == list:
+        matrix = MatOPS._preprocess(matrix, return_type="matrix")
+
             
-            matrix = Matrix(man=matrix)
+        if matrix.r != matrix.c:
+            raise ValueError("Input matrix must be a square matrix (nxn dimensions)")
             
-            if matrix.r != matrix.c:
-                raise ValueError("Input matrix must be a square matrix (nxn dimensions)")
-            
-        elif type(matrix) != Matrix:
-            raise TypeError("Must provide either an array or Matrix object as input.")
-    
         return MatOPS.T(MatOPS.cof(matrix))
+
+    @staticmethod
+    def matmul(matrix: Matrix, scalar=None, precision=3):
+
+        """
+
+        Only supported for scalar by matrix multiplication (for now)
+
+        ``
+        
+        """
+        
+        if type(matrix) == Matrix:
+            matrix = matrix.matrix
+
+        for r, row in enumerate(matrix):
+            for c, col in enumerate(row):
+                matrix[r][c] = round(col*scalar,ndigits=precision)
+        
+        return matrix
+    
+    @staticmethod
+    def inverse(matrix: Matrix, precision=3):
+        """
+        Returns the inverse of a matrix if it is invertible. \\
+
+        ### Arguments
+            
+        `matrix`: Matrix to multiply. Must be of type `List` or `Matrix` \\
+        `precision` (optional): Floating point precision for result
+        
+        """
+
+        matrix = MatOPS._preprocess(matrix, return_type="matrix")
+
+        det = MatOPS.det(matrix)
+
+        if det != 0:
+
+            new_matrix = MatOPS.adjoint(matrix)
+            return MatOPS.matmul(matrix=new_matrix, scalar=(1/det), precision=precision)
+
+        elif det == 0:
+            
+            raise ValueError("Matrix must have a non-zero determinant to be inverted.")
