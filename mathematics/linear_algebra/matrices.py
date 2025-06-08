@@ -85,6 +85,9 @@ class Matrix:
 
         sub = deepcopy(self.matrix)
 
+        if self.r == 1 and self.c == 1:
+            return self.matrix[0][0]
+
         if self.r == 2 and self.c == 2:
             return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
     
