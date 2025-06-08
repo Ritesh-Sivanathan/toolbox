@@ -142,9 +142,6 @@ class Matrix:
         sub = deepcopy(self.matrix)
 
         cofactor_matrix = []
-
-        if self.r == 2 and self.c == 2:
-            return ((sub[0][0]*sub[1][1]) - (sub[0][1]*sub[1][0]))
     
         for r_index, row in enumerate(sub):
 
