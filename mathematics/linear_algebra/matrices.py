@@ -16,7 +16,7 @@ class Matrix:
         
         ### Optional arguments:
 
-        `mode` *(default="zero")*: Populate all elements of the Matrix with: zeroes ("zero"), empty ("empty"), fill ("fill") \\
+        `mode` *(default="zero")*: Populate all elements of the Matrix with: zeroes ("zero"), empty ("empty"), fill ("fill"), random ("rand") \\
         `fill` *(default=0)*: If using `mode="fill"`, populates Matrix with real number `fill`
         
         '''
