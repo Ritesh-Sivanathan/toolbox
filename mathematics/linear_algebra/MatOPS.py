@@ -4,6 +4,19 @@ from copy import deepcopy
 class MatOPS:
 
     @staticmethod
+    def gaussian_elimination(matrix:Matrix):
+        
+        """
+
+        Matrix must be a `Matrix` object
+        
+        """
+
+        for r_index, row in enumerate(matrix.matrix):
+            pass
+        
+
+    @staticmethod
     def _preprocess(matrix, return_type="list"):
         
         if return_type not in {"list", "matrix"}:
