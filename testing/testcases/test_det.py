@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
 
-from mathematics.linear_algebra.matrices import Matrix
-from mathematics.linear_algebra.MatOPS import MatOPS
+from toolbox.mathematics.linear_algebra.matrices import Matrix
+from toolbox.mathematics.linear_algebra.MatOPS import MatOPS
 
 class TestDeterminant(unittest.TestCase):
 
