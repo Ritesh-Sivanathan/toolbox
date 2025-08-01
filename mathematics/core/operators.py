@@ -6,6 +6,7 @@ class Add:
     
     self.val_1:Constant = val_1
     self.val_2:Constant = val_2
+    self.traverse = True
   
   def evaluate(self):
     
@@ -15,16 +16,25 @@ class Add:
  
     return self.val_1.value + self.val_2.value
   
+  def show(self):
+    
+    return self.val_1, self.val_2
+  
 class Subtract:
   
   def __init__(self, val_1, val_2):
     
     self.val_1:Constant = val_1
     self.val_2:Constant = val_2
+    self.traverse = True
   
   def evaluate(self):
     
     return self.val_1.value - self.val_2.value
+  
+  def show(self):  
+    
+    return self.val_1, self.val_2
 
 class Multiply:
   
@@ -32,10 +42,15 @@ class Multiply:
     
     self.val_1:Constant = val_1
     self.val_2:Constant = val_2
+    self.traverse = True
   
   def evaluate(self):
     
     return self.val_1.value * self.val_2.value
+  
+  def show(self):  
+    
+    return self.val_1, self.val_2
   
 class Divide:
   
@@ -43,10 +58,15 @@ class Divide:
     
     self.val_1:Constant = val_1
     self.val_2:Constant = val_2
+    self.traverse = True
   
   def evaluate(self):
     
     return self.val_1.value / self.val_2.value
+  
+  def show(self):
+    
+  	return self.val_1, self.val_2
 
 class Power:
   
@@ -54,7 +74,12 @@ class Power:
     
     self.base:Constant = base
     self.exp:Constant = exp
+    self.traverse = True
   
   def evaluate(self):
     
     return self.base.value ** self.exp.value
+  
+  def show(self):
+    
+    return [self.base, self.exp]
