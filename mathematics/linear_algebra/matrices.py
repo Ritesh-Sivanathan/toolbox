@@ -164,7 +164,7 @@ class Matrix:
             cofactor_matrix.append(row_cof_matrix)
         
         return Matrix(man=cofactor_matrix)
-
+    
     def adjoint(self):
         
         """
@@ -219,3 +219,7 @@ class Matrix:
     def is_square(self):
 
         return self.r == self.c
+    
+    def show(self):
+        
+        return self.matrix
