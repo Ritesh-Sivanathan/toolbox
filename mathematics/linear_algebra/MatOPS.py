@@ -8,12 +8,18 @@ class MatOPS:
         
         """
 
-        Matrix must be a `Matrix` object
+        Returns: 
+            Row-echelon form of `matrix` with its determinant.
+            `None` if the matrix cannot be operated on
+            0 if there is a row or columns of zeroes.
         
+            
         """
 
-        for r_index, row in enumerate(matrix.matrix):
-            pass
+        if not isinstance(matrix, Matrix):
+            raise TypeError("Provide a valid `Matrix` object")
+                
+        
         
 
     @staticmethod
