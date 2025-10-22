@@ -11,16 +11,61 @@ class MatOPS:
         Returns: 
             Row-echelon form of `matrix` with its determinant.
             `None` if the matrix cannot be operated on
-            0 if there is a row or columns of zeroes.
+            0,0 if there is a row or columns of zeroes.
         
             
         """
+            
+        det = 1
+        
+        row_swap = False
+        found = False
 
-        if not isinstance(matrix, Matrix):
-            raise TypeError("Provide a valid `Matrix` object")
+        if isinstance(matrix, Matrix):
+            matrix = matrix.matrix
+
+        if not isinstance(matrix, (Matrix, list)):
+            return TypeError("Please provide a valid datatype for `matrix`")
+
+        for z in range(len(matrix)):
+
+            if matrix[z][z] == 0:
                 
-        
-        
+                row_swap = True
+
+                for temp in range(z, len(matrix)):
+                    
+                    if matrix[temp][z] != 0:
+                        
+                        t = matrix[z]
+                        s = matrix[temp]
+
+                        matrix[temp] = t
+                        matrix[z] = s
+
+                        det *= -1
+
+                        found = True
+
+                        break
+                
+                if row_swap and not found:
+                    return 0,0
+
+            for row in range(z+1, len(matrix)):
+                
+                if matrix[row][z] != 0:
+
+                    factor = matrix[row][z] / matrix[z][z]
+
+                    for nin, element in enumerate(matrix[row]):
+
+                        matrix[row][nin] -= factor*matrix[z][nin]
+                            
+        for i in range(len(matrix)):
+            det *= matrix[i][i]
+
+        return det, Matrix(man=matrix)
 
     @staticmethod
     def _preprocess(matrix, return_type="list"):

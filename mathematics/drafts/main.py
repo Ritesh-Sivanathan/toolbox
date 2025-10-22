@@ -2,18 +2,22 @@ from ..linear_algebra.matrices import Matrix
 
 def gaussian(matrix):
 
-    d = 1
+    det = 1
+    
+    row_swap = False
+    found = False
 
     if isinstance(matrix, Matrix):
         matrix = matrix.matrix
 
     for z in range(len(matrix)):
 
-        # WIP (row swaps)
-
         if matrix[z][z] == 0:
             
-            for temp in range(len(matrix)):
+            row_swap = True
+
+            for temp in range(z, len(matrix)):
+                
                 if matrix[temp][z] != 0:
                     
                     t = matrix[z]
@@ -21,6 +25,15 @@ def gaussian(matrix):
 
                     matrix[temp] = t
                     matrix[z] = s
+
+                    det *= -1
+
+                    found = True
+
+                    break
+            
+            if row_swap and not found:
+                return 0,0
 
         for row in range(z+1, len(matrix)):
             
@@ -33,9 +46,9 @@ def gaussian(matrix):
                     matrix[row][nin] -= factor*matrix[z][nin]
                         
     for i in range(len(matrix)):
-        d *= matrix[i][i]
+        det *= matrix[i][i]
 
-    return d, Matrix(man=matrix)
+    return det, Matrix(man=matrix)
 
 matrix = [
     [2,4,6],
@@ -43,22 +56,44 @@ matrix = [
     [6,14,23]
 ]
 
-m1 = Matrix(man=[[2, 4, 6], [1, 5, 9], [3, 7, 8]])  # elimination will involve fractions
-m2 = Matrix(man=[[0, 2, 1], [3, 0, 4], [1, 5, 0]])  # zero pivot in first row
-m3 = Matrix(man=[[1, 1, 1], [2, 2, 3], [4, 5, 6]])  # near-singular, tricky elimination
-m4 = Matrix(man=[[1, 2, 3], [2, 4, 6], [3, 6, 9]])  # determinant is zero (skip?), instead tweak
-m5 = Matrix(man=[[0, 1, 2], [1, 0, 3], [4, 5, 6]])  # zero in top-left, requires pivoting
+m1 = Matrix(man=[[2, 1, 3], [1, 4, 2], [3, 2, 1]])   # standard case
+m2 = Matrix(man=[[0, 2, 1], [1, 3, 4], [2, 1, 5]])   # zero pivot in first position
+m3 = Matrix(man=[[1, 2, 3], [2, 4, 6], [1, 1, 1]])   # singular - row 2 = 2*row 1
+m4 = Matrix(man=[[3, 0, 0], [0, 2, 0], [0, 0, 4]])   # diagonal matrix
+m5 = Matrix(man=[[1, -1, 2], [2, 3, 1], [-1, 2, 3]]) # with negative values
 
-matrices = [m1, m2, m3, m4, m5]
-determinants = [12, 27, -3, 1, 3]
+matrices: list[Matrix] = [m1, m2, m3, m4, m5]
+determinants = [-25, 1, 0, 24, 28]
 
 def tests(matrices):
 
     for index, matrix in enumerate(matrices):
 
-        det, res = gaussian(matrix)
+        try:
 
-        if det == determinants[index]:
-            print(f"PASSED {index+1}/{len(matrices)}")
+            det, res = gaussian(matrix)
+
+            if det == determinants[index]:
+                print(f"PASSED {index+1}/{len(matrices)}")
+
+            print(det,res,determinants[index])
+
+            if index == 5:
+                print(det, res)
         
-tests(matrices)
+        except err as err:
+            print(err)
+
+def comparison_tests(matrices):
+
+    for index, matrix in enumerate(matrices):
+
+        try:
+
+            if matrix.det() == determinants[index]:
+                print(f"TEST {index+1}/{len(matrices)} PASSED")
+        
+        except err as err:
+            print(err)
+
+comparison_tests(matrices)
