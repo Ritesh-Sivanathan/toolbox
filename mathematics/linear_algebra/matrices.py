@@ -55,69 +55,69 @@ class Matrix:
         return f'Matrix({self.r}, {self.c}, "{self.mode if self.mode else "man"}")'
 
 
-    @staticmethod
-    def gaussian_elimination(matrix):
+    def gaussian_elimination(self):
         
         """
 
         Returns: 
-            Determinant Row-echelon form of `matrix` with its determinant.
+
+            Determinant and row-echelon form of `matrix` with its determinant.
             `None` if the matrix cannot be operated on
-            0,0 if there is a row or columns of zeroes.
+            (0,0) if matrix is singular
+
+            Does not mutate original matrix
         
-            
         """
             
-        det = 1
+        determinant = 1
         
         row_swap = False
-        found = False
 
-        if isinstance(matrix, Matrix):
-            matrix = matrix.matrix
+        matrix = [[element for element in row] for row in self.matrix]
 
-        if not isinstance(matrix, (Matrix, list)):
-            return TypeError("Please provide a valid datatype for `matrix`")
+        for pivot in range(len(matrix)):
 
-        for z in range(len(matrix)):
+            found_swap = False
 
-            if matrix[z][z] == 0:
-                
+            if matrix[pivot][pivot] == 0:
+
                 row_swap = True
 
-                for temp in range(z, len(matrix)):
+                for check_pot_pivot in range(pivot, len(matrix)):
                     
-                    if matrix[temp][z] != 0:
+                    if matrix[check_pot_pivot][pivot] != 0:
                         
-                        t = matrix[z]
-                        s = matrix[temp]
+                        t = matrix[pivot]
+                        s = matrix[check_pot_pivot]
 
-                        matrix[temp] = t
-                        matrix[z] = s
+                        matrix[pivot], matrix[check_pot_pivot] = matrix[check_pot_pivot], matrix[pivot]
 
-                        det *= -1
+                        matrix[check_pot_pivot] = t
+                        matrix[pivot] = s
 
-                        found = True
+                        determinant *= -1
+
+                        found_swap = True
 
                         break
                 
-                if row_swap and not found:
-                    return 0,0
+                if not found_swap:
+                    return 0, 0
 
-            for row in range(z+1, len(matrix)):
+            for row in range(pivot+1, len(matrix)):
                 
-                if matrix[row][z] != 0:
+                if matrix[row][pivot] != 0:
 
-                    factor = matrix[row][z] / matrix[z][z]
+                    factor = matrix[row][pivot] / matrix[pivot][pivot]
 
-                    for nin, element in enumerate(matrix[row]):
+                    for index, parallel_element in enumerate(matrix[row]):
 
-                        matrix[row][nin] -= factor*matrix[z][nin]
+                        matrix[row][index] -= factor*matrix[pivot][index]
                             
         for i in range(len(matrix)):
-            det *= matrix[i][i]
+            determinant *= matrix[i][i]
 
-        return det, Matrix(man=matrix)
+        return determinant, Matrix(man=matrix)
 
     @staticmethod
     def dims(matrix):
@@ -148,7 +148,7 @@ class Matrix:
 
         det = 0
 
-        sub = deepcopy(self.matrix)
+        sub = [[element for element in row] for row in self.matrix]
 
         if self.r == 1 and self.c == 1:
             return self.matrix[0][0]
@@ -207,7 +207,7 @@ class Matrix:
 
         det = 0
 
-        sub = deepcopy(self.matrix)
+        sub = [[element for element in row] for row in self.matrix]
 
         cofactor_matrix = []
     
@@ -269,11 +269,11 @@ class Matrix:
 
         """
 
-        Only supported for scalar by matrix multiplication (for now)
+        Only supported for scalar multiplication (for now)
         
         """
 
-        matrix = deepcopy(self.matrix)
+        matrix = [[element for element in row] for row in self.matrix]
 
         for r, row in enumerate(matrix):
             for c, col in enumerate(row):
