@@ -9,7 +9,7 @@ class MatOPS:
         """
 
         Returns: 
-            Row-echelon form of `matrix` with its determinant.
+            Determinant and resulting row-echelon form of the original matrix.
             `None` if the matrix cannot be operated on
             0,0 if there is a row or columns of zeroes.
         
