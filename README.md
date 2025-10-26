@@ -1,6 +1,6 @@
 # Mathematical Toolbox
 
-This project is a toolbox of all the mathematical functions one could need. I will continue developing it to match my ever evolving mathematical skills (currently sitting at basic Linear Algebra and nearly wrapping us single-variable Calculus).
+This project is a toolbox of all the mathematical functions one could need. I will continue developing it to match my ever evolving mathematical skills -- for reference, I am currently working through Howard Anton and Chris Rorres' Linear Algebra, and just last month I wrapped up all the single-variable calculus in Morris Kline's Calculus: An Intuitive and Physical Approach.
 
 Once this project is more mature, I plan to use it primarily to develop my more complex projects.
 
@@ -12,6 +12,8 @@ Once this project is more mature, I plan to use it primarily to develop my more 
 - Cofactor Matrix
 - Inverse Matrix
 - Matrix Multiplication - Scalar by any Matrix
+- Gaussian Elimination
+- Vector Operations (Addition, Scalar Multiplication, Cross/Dot Product)
 
 - Add, Subtract, Multiply, Divide - Constants or simple Binomials
 
