@@ -71,8 +71,6 @@ class Matrix:
             
         determinant = 1
         
-        row_swap = False
-
         matrix = [[element for element in row] for row in self.matrix]
 
         for pivot in range(len(matrix)):
@@ -80,8 +78,6 @@ class Matrix:
             found_swap = False
 
             if matrix[pivot][pivot] == 0:
-
-                row_swap = True
 
                 for check_pot_pivot in range(pivot, len(matrix)):
                     
