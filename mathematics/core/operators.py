@@ -2,84 +2,48 @@ from .base import Constant, Variable
 
 class Add:
   
-  def __init__(self, val_1, val_2):
+  def __init__(self, Node1, Node2):
     
-    self.val_1:Constant = val_1
-    self.val_2:Constant = val_2
-    self.traverse = True
+    self.Node1 = Node1
+    self.Node2 = Node2
   
+  def __add__(self, Node3):
+    
+    return Constant(self.evaluate()) + Constant(Node3.evaluate())
+    
   def evaluate(self):
     
-    if (type(self.val_1) == Variable and not self.val_1.value) or (type(self.val_2) == Variable and not self.val_2.value):
-
-      return f"{self.val_1.symbol if type(self.val_1) == Variable else self.val_1.value}+{self.val_2.symbol if type(self.val_2) == Variable else self.val_2.value}"
- 
-    return self.val_1.value + self.val_2.value
-  
-  def show(self):
-    
-    return self.val_1, self.val_2
+    return self.Node1 + self.Node2
   
 class Subtract:
   
-  def __init__(self, val_1, val_2):
+  def __init__(self, Node1, Node2):
     
-    self.val_1:Constant = val_1
-    self.val_2:Constant = val_2
-    self.traverse = True
-  
+    self.Node1 = Node1
+    self.Node2 = Node2
+    
   def evaluate(self):
     
-    return self.val_1.value - self.val_2.value
-  
-  def show(self):  
-    
-    return self.val_1, self.val_2
+    return self.Node1 - self.Node2
 
 class Multiply:
   
-  def __init__(self, val_1, val_2):
+  def __init__(self, Node1, Node2):
     
-    self.val_1:Constant = val_1
-    self.val_2:Constant = val_2
-    self.traverse = True
+    self.Node1 = Node1
+    self.Node2 = Node2  
   
   def evaluate(self):
     
-    return self.val_1.value * self.val_2.value
-  
-  def show(self):  
-    
-    return self.val_1, self.val_2
+    return self.Node1 * self.Node2
   
 class Divide:
   
-  def __init__(self, val_1, val_2):
+  def __init__(self, Node1, Node2):
     
-    self.val_1:Constant = val_1
-    self.val_2:Constant = val_2
-    self.traverse = True
+    self.Node1 = Node1
+    self.Node2 = Node2  
   
   def evaluate(self):
     
-    return self.val_1.value / self.val_2.value
-  
-  def show(self):
-    
-  	return self.val_1, self.val_2
-
-class Power:
-  
-  def __init__(self, base, exp):
-    
-    self.base:Constant = base
-    self.exp:Constant = exp
-    self.traverse = True
-  
-  def evaluate(self):
-    
-    return self.base.value ** self.exp.value
-  
-  def show(self):
-    
-    return [self.base, self.exp]
+    return self.Node1 / self.Node2
