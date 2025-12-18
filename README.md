@@ -12,7 +12,7 @@ Once this project is more mature, I plan to use it primarily to develop my more 
 - Cofactor Matrix
 - Inverse Matrix
 - Matrix Multiplication - Scalar by any Matrix
-- Gaussian Elimination
+- Gaussian Elimination (works for square matrices only -- code needs refactoring, but works)
 - Vector Operations (Addition, Scalar Multiplication, Cross/Dot Product)
 
 - Add, Subtract, Multiply, Divide - Constants or simple Binomials
