@@ -1,8 +1,7 @@
 # Mathematical Toolbox
 
-This project is a toolbox of all the mathematical functions one could need. I will continue developing it to match my ever evolving mathematical skills -- for reference, I am currently working through Howard Anton and Chris Rorres' Linear Algebra, and just last month I wrapped up all the single-variable calculus in Morris Kline's Calculus: An Intuitive and Physical Approach.
-
-Once this project is more mature, I plan to use it primarily to develop my more complex projects.
+This project is a toolbox of all the mathematical functions one could need.
+Just a way to apply the mathematics I'm learning
 
 ## Currently Supported Functions
 
