@@ -8,19 +8,11 @@
 # print(MatOPS.inverse(A))
 # print(sp.Matrix(M).inverse_ADJ())
 
-from mathematics.core.base import Constant, Expression
-from mathematics.core.operators import Add, Multiply
+from mathematics.core.base import Constant
 
-a = 5 - Constant(3) 
-print(a)
+x = Constant(1)
+y = Constant(2)
 
-# a = Constant(2) - Constant(1) + 2
-# b = Constant(4) / Constant(2) * 3
-# c = 3 / Constant(3)
-# d = 4 - Constant(3) * 2
+expr = (Constant(1) + Constant(2)) + Constant(3) - Constant(6)
 
-# e = Expression(Add(Add(2, 3), Add(3,5)))
-
-# print(a.value, b.value, c.value, d.value)
-# print(e)
-# print(e.evaluate())
+print(expr.evaluate())
