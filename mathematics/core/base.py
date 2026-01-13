@@ -26,6 +26,12 @@ class Constant(Node):
   def __repr__(self):
     return self.value
   
+  def __radd__(self, other):
+    return Add(Constant(other), Constant(self.value)).evaluate()
+
+  def __rsub__(self, other):
+    return Subtract(Constant(other), Constant(self.value))
+
   def evaluate(self):
         return self.value
 
