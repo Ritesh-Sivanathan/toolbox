@@ -259,23 +259,64 @@ class Matrix:
 
         new_matrix = self.adjoint()
         return new_matrix * (1/det)
+    
+    def __rmul__(self, other):
+        
+        if isinstance(other, Matrix):
+            pass
+        
+        elif isinstance(other, (int, float)):
+            return self.__mul__(other)
+
+    def __mul__(self, other, precision=3):
+
+        if isinstance(other, Matrix):
+        
+            Ar, Ac = self.r, self.c
+            Br, Bc = other.r, other.c
+                    
+            if Ac != Br:
+                return ValueError("These matrices cannot be multiplied by each other")
             
+            output = [[] for _ in range(Ar)]
+            
+            for row in range(self.r):
+                for col in range(other.c):
+                    
+                    sum = 0
+                    target = [other.matrix[r][col] for r in range(Br)]
+                    
+                    for i in range(len(self.matrix[row])):
+                        sum += self.matrix[row][i] * target[i]
+                                        
+                    output[row].append(sum)
+                    
+            return Matrix(man=output)
 
-    def __mul__(self, scalar, precision=3):
+        elif isinstance(other, (float, int)):
+            
+            MatrixA = isinstance(self, Matrix)
+            
+            constant = other
+            output = [[] for _ in range(self.r)]
+            matrix = self if MatrixA else self
+            
+            for r, row in enumerate(matrix.matrix):
+                for c, col in enumerate(row):
 
-        """
-
-        Only supported for scalar multiplication (for now)
+                    output[r].append(round(col*constant,ndigits=precision))
+            
+            return Matrix(man=output)
+    
+    __rmul__ = __mul__
+    
+    def mul(self, target):
         
-        """
-
-        matrix = [[element for element in row] for row in self.matrix]
-
-        for r, row in enumerate(matrix):
-            for c, col in enumerate(row):
-                matrix[r][c] = round(col*scalar,ndigits=precision)
+        if not (isinstance(target, (float,int,Matrix))):
+            return ValueError("This datatype is not supported for matrix multiplication")
         
-        return Matrix(man=matrix)
+        if isinstance(target, Matrix):
+            pass
     
     def is_square(self):
 

@@ -219,27 +219,7 @@ class MatOPS:
         if matrix.r != matrix.c:
             raise ValueError("Input matrix must be a square matrix (nxn dimensions)")
             
-        return MatOPS.T(MatOPS.cof(matrix))
-
-    @staticmethod
-    def matmul(matrix: Matrix, scalar=None, precision=3):
-
-        """
-
-        Only supported for scalar by matrix multiplication (for now)
-
-        ``
-        
-        """
-        
-        if type(matrix) == Matrix:
-            matrix = deepcopy(matrix.matrix)
-
-        for r, row in enumerate(matrix):
-            for c, col in enumerate(row):
-                matrix[r][c] = round(col*scalar,ndigits=precision)
-        
-        return matrix
+        return MatOPS.T(MatOPS.cof(matrix))       
     
     @staticmethod
     def inverse(matrix: Matrix, precision=3):
@@ -265,3 +245,44 @@ class MatOPS:
         elif det == 0:
             
             raise ValueError("Matrix must have a non-zero determinant to be inverted.")
+        
+    @staticmethod
+    def MatMul(A, B, precision=3):
+        
+        if isinstance(A, Matrix) and isinstance(B, Matrix):
+        
+            Ar, Ac = A.r, A.c
+            Br, Bc = B.r, B.c
+                    
+            if Ac != Br:
+                return ValueError("These matrices cannot be multiplied by each other")
+            
+            output = [[] for _ in range(Ar)]
+            
+            for row in range(A.r):
+                for col in range(B.c):
+                    
+                    sum = 0
+                    target = [B.matrix[r][col] for r in range(Br)]
+                    
+                    for i in range(len(A.matrix[row])):
+                        sum += A.matrix[row][i] * target[i]
+                                        
+                    output[row].append(sum)
+                    
+            return Matrix(man=output)
+
+        elif isinstance(A, (float, int)) or isinstance(B, (float, int)):
+            
+            MatrixA = isinstance(A, Matrix)
+            
+            constant = B if MatrixA else A
+            output = [[] for _ in range(A.r if MatrixA else B.r)]
+            matrix = A if MatrixA else B
+            
+            for r, row in enumerate(matrix.matrix):
+                for c, col in enumerate(row):
+
+                    output[r].append(round(col*constant,ndigits=precision))
+            
+            return Matrix(man=output)
