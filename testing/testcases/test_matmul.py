@@ -9,12 +9,16 @@ class MatMulTests(unittest.TestCase):
     def test_identity_2x2(self):
 
         A = Matrix(man=[[1,0],[0,1]])
-        B = sympy.Matrix([[1,0],[0,1]])*2
+        B = (sympy.Matrix([[1,0],[0,1]])*2).tolist()
 
-        X = MatOPS.matmul(A,2)
-        B = B.tolist()
+        res1 = A * 2
+        self.assertEqual(res1.matrix, B, msg="Right-sided multiplication failed")
+        
+        res2 = 2 * A
+        self.assertEqual(res2.matrix, B, msg="Right-sided multiplication failed")
 
-        self.assertEqual((A*2).matrix,X,B)
+        X = MatOPS.MatMul(A,2)
+        self.assertEqual(res1.matrix, X.matrix, msg="Operator and MatMul helper mismatch")
 
 if __name__ == "__main__":
     unittest.main()
