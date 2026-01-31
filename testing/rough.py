@@ -14,5 +14,5 @@ x = Constant(1)
 y = Constant(2)
 
 expr = (Constant(1) + Constant(2)) + Constant(3) - Constant(6)
-
+expr = 5 - Constant(1)
 print(expr.evaluate())
