@@ -24,7 +24,7 @@ class Matrix:
         if man:
             
             res = Matrix.dims(man)
-
+                
             self.r = res[0]
             self.c = res[1]
 
@@ -259,6 +259,22 @@ class Matrix:
 
         new_matrix = self.adjoint()
         return new_matrix * (1/det)
+    
+    def __add__(self, other):
+        
+        if not isinstance(other, Matrix):
+            raise TypeError("These types cannot be added together")
+        
+        if self.r != other.r or self.c != other.c:
+            return ValueError("The dimensions of both matrices must be the same to add them")
+        
+        output = [[] for i in range(self.r)]
+        
+        for r in range(self.r):
+            for c in range(self.c):
+                output[r].append(self.matrix[r][c] + other.matrix[r][c])
+        
+        return Matrix(man=output)
     
     def __rmul__(self, other):
         
