@@ -16,6 +16,8 @@ class Math {
 
 float Math::Combination(float n, float r) {
 
+	if (n == 0 && r == 0) { throw invalid_argument("Division by Zero not valid"); }
+
 	float res = (Factorial(n))/(Factorial(n-r)*Factorial(r));
 
 	return res;
@@ -23,18 +25,24 @@ float Math::Combination(float n, float r) {
 }
 
 float Math::BinomialExpectedValue(float n, float p) {
-
+	
 	return n*p;
 
 }
 
 float Math::HypergeometricExpectedValue(float a, float r, float n) {
+	
+	if (n == 0) { throw invalid_argument("Division by Zero not valid"); }
 
 	return ((a*r)/(n));
 
 }
 
 float Math::Factorial(float n) { // Really only integers..
+
+	if (n == 0) {
+		return 1;
+	}
 
 	float res = 1;
 
@@ -59,7 +67,6 @@ float Math::HypergeometricSuccesses(float n, float a, float r, float k) {
 	float num = (Combination(a,k)) * (Combination(n-a,r-k));
 
 	float den = Combination(n,r);
-
 
 	return num/den;
 }
