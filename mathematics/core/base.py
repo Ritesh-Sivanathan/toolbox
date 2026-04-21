@@ -3,6 +3,7 @@
 class Node:
   
   def _ensure_node(self, other):
+
     if isinstance(other, (int, float)):
       return Constant(other)
     return other
@@ -32,6 +33,9 @@ class Constant(Node):
   def __rsub__(self, other):
     return Subtract(Constant(other), Constant(self.value))
 
+  def __mul__(self, other):
+      return Multiply(self, other._ensure_node(other))
+
   def evaluate(self):
         return self.value
 
@@ -47,6 +51,15 @@ class Add(Node):
   def evaluate(self):
     return self.left.evaluate() + self.right.evaluate()
   
+class Multiply(Node):
+
+    def __init__(self, left: Constant, right: Constant):
+        self.left = left
+        self.right = right
+
+    def evaluate(self):
+        return self.left.evaluate() * self.right.evaluate()
+
 class Subtract(Node):
   
   def __init__(self, left: Constant, right: Constant):
