@@ -1,3 +1,5 @@
-from node import Add, Constant
+from node import Add, Multiply, Constant, Term, Variable
 
-expr = Constant(1) + Constant(Constant(3)*Constant(4))
+x = Variable('x')
+expr = x + x**3
+print(expr.eval())
