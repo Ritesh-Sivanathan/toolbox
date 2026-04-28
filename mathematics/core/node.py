@@ -1,17 +1,18 @@
 def _ensure_node(node):
 
     if (isinstance(node,(int,float))):
-        print("check")
         return Constant(node)
 
     return node
 
-class Add:
+class BinaryOp:
 
     def __init__(self,left,right):
-
         self.left=_ensure_node(left)
         self.right=_ensure_node(right)
+
+
+class Add(BinaryOp):
 
     def eval(self):
 
@@ -24,11 +25,7 @@ class Add:
         
         return f"{self.left.eval()} + {self.right.eval()}"
 
-class Multiply:
-
-    def __init__(self,left,right):
-        self.left=_ensure_node(left)
-        self.right=_ensure_node(right)
+class Multiply(BinaryOp):
 
     def eval(self):
 
@@ -37,11 +34,7 @@ class Multiply:
 
         return l * r
 
-class Divide:
-
-    def __init__(self,left,right):
-        self.left=_ensure_node(left)
-        self.right=_ensure_node(right)
+class Divide(BinaryOp):
 
     def eval(self):
 
@@ -94,11 +87,7 @@ class Term:
     def __repr__(self):
         return f"{self.variable.symbol}: {self.coefficient}"
 
-class VarMul:
-
-    def __init__(self,left,right):
-        self.left=_ensure_node(left)
-        self.right=_ensure_node(right)
+class VarMul(BinaryOp):
 
     def eval(self):
 
@@ -127,22 +116,6 @@ class VarPow:
 
         return Variable(self.variable.symbol, self.variable.order * self.exponent)
 
-class VarAdd:
-
-    def __init__(self,left,right):
-        self.left=_ensure_node(left)
-        self.right=_ensure_node(right)
-
-    def eval(self):
-
-        return self.left.eval() + self.right.eval()
-
-    def __add__(self,other):
-        return VarAdd(self.eval(),other.eval())
-
-    def __repr__(self):
-        return f"{self.left} + {self.right}"
-
 
 class Variable:
 
@@ -154,7 +127,7 @@ class Variable:
         return VarMul(self,other)
 
     def __add__(self,other):
-        return VarAdd(self,other)
+        return Add(self,other)
 
     def __pow__(self,exponent):
         return VarPow(self,exponent)
