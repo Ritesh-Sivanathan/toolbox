@@ -11,7 +11,6 @@ class BinaryOp:
         self.left=_ensure_node(left)
         self.right=_ensure_node(right)
 
-
 class Add(BinaryOp):
 
     def eval(self):
@@ -52,6 +51,9 @@ class Constant:
     def __add__(self, other):
         return Add(self, other)
 
+    def __radd__(self,other):
+        return Add(self,other)
+
     def __sub__(self,other):
         return Subtract(self,other)
 
@@ -65,10 +67,10 @@ class Constant:
 
     def eval(self):
         
-        if isinstance(self.value, (Add,Multiply)):
-            return self.value.eval()
+        if isinstance(self.value, (int, float)):
+            return self.value
 
-        return self.value
+        return self.value.eval()
 
 class Term:
 
@@ -127,6 +129,9 @@ class Variable:
         return VarMul(self,other)
 
     def __add__(self,other):
+        return Add(self,other)
+
+    def __radd__(self,other):
         return Add(self,other)
 
     def __pow__(self,exponent):
