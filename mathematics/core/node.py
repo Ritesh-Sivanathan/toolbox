@@ -15,13 +15,6 @@ class Add:
 
     def eval(self):
 
-        if (isinstance(self.left, (int,float))):
-            return self.left + self.right.eval()
-        
-        if (isinstance(self.right, (int,float))):
-            return self.right + self.left.eval()
-
-
         l = self.left.eval()
         r = self.right.eval()
 
