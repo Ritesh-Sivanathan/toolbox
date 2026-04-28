@@ -1,36 +1,41 @@
+def _ensure_node(node):
+
+    if (isinstance(node,(int,float))):
+        print("check")
+        return Constant(node)
+
+    return node
 
 class Add:
 
     def __init__(self,left,right):
-        self.left=left
-        self.right=right
+
+        self.left=_ensure_node(left)
+        self.right=_ensure_node(right)
 
     def eval(self):
+
+        if (isinstance(self.left, (int,float))):
+            return self.left + self.right.eval()
+        
+        if (isinstance(self.right, (int,float))):
+            return self.right + self.left.eval()
+
 
         l = self.left.eval()
         r = self.right.eval()
 
         return l + r
 
-class Subtract:
-
-    def __init__(self,left,right):
-        self.left=left
-        self.right=right
-
-    def eval(self):
-
-        l = self.left.eval()
-        r = self.right.eval()
-
-        return l - r
-
+    def __repr__(self):
+        
+        return f"{self.left.eval()} + {self.right.eval()}"
 
 class Multiply:
 
     def __init__(self,left,right):
-        self.left=left
-        self.right=right
+        self.left=_ensure_node(left)
+        self.right=_ensure_node(right)
 
     def eval(self):
 
@@ -42,8 +47,8 @@ class Multiply:
 class Divide:
 
     def __init__(self,left,right):
-        self.left=left
-        self.right=right
+        self.left=_ensure_node(left)
+        self.right=_ensure_node(right)
 
     def eval(self):
 
@@ -99,8 +104,8 @@ class Term:
 class VarMul:
 
     def __init__(self,left,right):
-        self.left=left
-        self.right=right
+        self.left=_ensure_node(left)
+        self.right=_ensure_node(right)
 
     def eval(self):
 
@@ -119,18 +124,32 @@ class VarPow:
     def __mul__(self,other):
         return self.eval() * other 
 
+    def __add__(self,other):
+        return VarAdd(self.eval(), other.eval())
+
     def eval(self):
+
+        if (self.exponent == 0):
+            return Constant(1)
+
         return Variable(self.variable.symbol, self.variable.order * self.exponent)
 
 class VarAdd:
 
     def __init__(self,left,right):
-        self.left=left
-        self.right=right
+        self.left=_ensure_node(left)
+        self.right=_ensure_node(right)
 
     def eval(self):
-        
-        return Term(self.left.eval(),self.right.eval()) # this logic won't work
+
+        return self.left.eval() + self.right.eval()
+
+    def __add__(self,other):
+        return VarAdd(self.eval(),other.eval())
+
+    def __repr__(self):
+        return f"{self.left} + {self.right}"
+
 
 class Variable:
 
@@ -148,8 +167,11 @@ class Variable:
         return VarPow(self,exponent)
 
     def eval(self):
+
+        if (self.order == 0):
+            return Constant(1)
         return self
 
     def __repr__(self):
 
-        return f"{self.symbol}^{self.order}"
+        return f"{self.symbol}{'^' + str(self.order) if self.order != 1 else ''}"
