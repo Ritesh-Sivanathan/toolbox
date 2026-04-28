@@ -20,7 +20,7 @@ class Add(BinaryOp):
 
         return l + r
 
-    def __repr__(self):
+    def __str__(self):
         
         return f"{self.left.eval()} + {self.right.eval()}"
 
@@ -58,11 +58,9 @@ class Constant:
         return Subtract(self,other)
 
     def __mul__(self,other):
-
         return Multiply(self,other)
 
     def __truediv__(self,other):
-
         return Divide(self,other)
 
     def eval(self):
@@ -86,7 +84,7 @@ class Term:
 
             return (self, other)
 
-    def __repr__(self):
+    def __str__(self):
         return f"{self.variable.symbol}: {self.coefficient}"
 
 class VarMul(BinaryOp):
@@ -143,6 +141,6 @@ class Variable:
             return Constant(1)
         return self
 
-    def __repr__(self):
+    def __str__(self):
 
         return f"{self.symbol}{'^' + str(self.order) if self.order != 1 else ''}"
