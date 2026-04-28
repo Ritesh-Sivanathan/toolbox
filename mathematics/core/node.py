@@ -97,6 +97,9 @@ class VarMul(BinaryOp):
 
         return Term(self.left.eval(),self.right.eval())
 
+    def __mul__(self,other):
+        return Multiply(self,other).eval()
+
 class VarPow:
 
     def __init__(self,variable,exponent):
