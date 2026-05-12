@@ -1,0 +1,180 @@
+class BinaryOp:
+
+    def __init__(self,left,right):
+        self.left=ensure_node(left)
+        self.right=ensure_node(right)
+
+    def __add__(self,other):
+        return Add(self,other)
+
+    def __radd__(self,other):
+        return Add(self,other)
+
+class Add(BinaryOp):
+
+    def eval(self):
+
+        l = self.left.eval()
+        r = self.right.eval()
+
+        print(type(l), type(r))
+
+        return l + r
+
+    def __str__(self):
+        
+        return f"{self.left.eval()} + {self.right.eval()}"
+
+    def __add__(self,other):
+
+        other = ensure_node(other)
+
+        return Add(self.eval(),other.eval())
+
+    def __radd__(self,other):
+
+        other = ensure_node(other)
+
+        return Add(self.eval(),other.eval())
+
+class Multiply(BinaryOp):
+
+    def eval(self):
+
+        l = self.left.eval()
+        r = self.right.eval()
+
+        return l * r
+
+    def __add__(self,other):
+        return Add(self,other)
+
+    def __radd__(self,other):
+        return Add(self,other)
+
+
+class Divide(BinaryOp):
+
+    def eval(self):
+
+        l = self.left.eval()
+        r = self.right.eval()
+
+        return l / r
+
+class VarMul(BinaryOp):
+
+    def eval(self):
+
+        if (isinstance(self.left.eval(), Variable) and isinstance(self.right.eval(), Variable)):
+            if self.left.eval().symbol == self.right.eval().symbol:
+                return Variable(self.left.symbol, self.left.eval().order+self.right.eval().order)
+
+        return Multiply(self.left.eval(),self.right.eval()) # what is the point of this?
+
+    def __mul__(self,other):
+        return Multiply(self,other).eval()
+
+    def __add__(self,other):
+        return Add(self,other).eval()
+
+    def __radd__(self,other):
+        return Add(self,other).eval()
+
+class VarPow:
+
+    def __init__(self,variable,exponent):
+        self.variable=variable
+        self.exponent=exponent
+
+    def __mul__(self,other):
+        return self.eval() * other 
+
+    def __add__(self,other):
+        return Add(self.eval(), other.eval())
+
+    def __radd__(self,other):
+        return Add(self.eval(), other.eval())
+
+    def eval(self):
+
+        if (self.exponent == 0):
+            return Constant(1)
+
+        return Variable(self.variable.symbol, self.variable.order * self.exponent)
+
+class Constant:
+
+    def __init__(self,value):
+        self.value = value
+
+    def __add__(self, other):
+        return Add(self, other)
+
+    def __radd__(self,other):
+        return Add(self,other)
+
+    def __sub__(self,other):
+        return Subtract(self,other)
+
+    def __mul__(self,other):
+        return Multiply(self,other)
+
+    def __truediv__(self,other):
+        return Divide(self,other)
+
+    def eval(self):
+        
+        if isinstance(self.value, (int, float)):
+            return self.value
+
+        return self.value.eval()
+
+class Operator:
+
+    def __add__(self,other):
+        other = ensure_node(other) 
+        return Add(self,other)
+
+    def __radd__(self,other):
+        other = ensure_node(other)
+        return Add(self,other)
+
+class Variable:
+
+    def __init__(self,symbol,order=1):
+        self.symbol=symbol
+        self.order=order
+
+    def __mul__(self,other):
+        return VarMul(self,other)
+
+    def __rmul__(self,other):
+        return VarMul(self,other)
+
+    def __add__(self,other):
+        return Add(self,other)
+
+    def __radd__(self,other):
+        return Add(self,other)
+
+    def __pow__(self,exponent):
+        return VarPow(self,exponent)
+
+    def eval(self):
+
+        if (self.order == 0):
+            return Constant(1)
+        return self
+
+    def __str__(self):
+
+        return f"{self.symbol}{'^' + str(self.order) if self.order != 1 else ''}"
+def ensure_node(node):
+
+    if (isinstance(node,(int,float))):
+        return Constant(node)
+
+    return node
+
+
