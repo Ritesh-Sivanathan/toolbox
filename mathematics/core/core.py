@@ -152,10 +152,10 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         left = self.left.eval()
         right = self.right.eval()
 
-        if (right==0):
+        if right == Constant(0):
             return Constant(1)
 
-        if (right==1):
+        if right == Constant(1):
             return left
 
         if isinstance(left, Constant) and isinstance(right, Constant):
@@ -251,6 +251,10 @@ class Variable:
         return f"Variable('{self.symbol}')"
 
     def __eq__(self, other):
+
+        if not isinstance(other, Variable):
+            return False
+
         return self.symbol == other.symbol
 
     def __mul__(self,other):
