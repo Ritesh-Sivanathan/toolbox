@@ -240,12 +240,15 @@ class Variable:
 
     def __init__(self,symbol):
         self.symbol=symbol
-    
+
     def __str__(self):
         return f"{self.symbol}"
 
     def __repr__(self):
         return f"Variable('{self.symbol}')"
+
+    def __eq__(self, other):
+        return self.symbol == other.symbol
 
     def __mul__(self,other):
         return Multiply(self,other)
