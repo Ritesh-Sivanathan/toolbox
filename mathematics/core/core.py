@@ -168,7 +168,7 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         l = self.left
         r = self.right
 
-        return f"{l} ** {r}"
+        return f"({l} ** {r})"
 
     def __repr__(self):
 
@@ -181,10 +181,20 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
 
         return (self.left == other.left and self.right == other.right)
 
-    def __mul__(self,other):
+    def __add__(self,other):
 
-        if (isinstance(other,Constant)):
-            return Multiply(other,self)
+        if not isinstance(other, Exponent):
+            return Add(self,other)
+        
+        if self == other: # exact same exponent
+            return Multiply(Constant(2), self) # you get two of them
+
+    def __mul__(self,other):
+ 
+        if not isinstance(other,(Exponent,Multiply)):
+            return Multiply(self,other)
+
+        raise NotImplementedError("Multiplication of exponents is not implemented yet")
 
         # TODO: mul implementation
 
