@@ -22,9 +22,11 @@ class ConstantBinaryOperations(unittest.TestCase):
         expr = Constant(1) + self.x
         self.assertEqual(expr.eval(), Add(Constant(1), Variable('x')))
 
-class VariableBinaryOperations(unittest.TestCase):
+class ConstantUnaryOperations(unittest.TestCase):
 
-    pass
+    def test_ConstantPowConstant(self):
+        expr = Constant(2) ** Constant(2)
+        self.assertEqual(expr.eval(), Constant(4))
 
 if __name__ == "__main__":
     unittest.main()
