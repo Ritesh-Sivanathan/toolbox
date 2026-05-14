@@ -67,7 +67,7 @@ class Add(BinaryOp):
 
     def __eq__(self,other):
 
-        if not isinstance(Add):
+        if not isinstance(Add, other):
             return False
 
         return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
