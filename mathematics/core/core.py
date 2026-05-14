@@ -58,8 +58,8 @@ class Add(BinaryOp):
         
         # this feels really iffy... but it works for now - will get rid of specific type checks for returns later
 
-        if isinstance(l,(int,float)) and isinstance(r,(int,float)): 
-           return Constant(l+r) 
+        if isinstance(l,Constant) and isinstance(r,Constant):
+           return Constant(l.value + r.value)
 
         return l + r
 
@@ -173,7 +173,7 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
 
     def __eq__(self,other):
 
-        if not isinstance(Exponent):
+        if not isinstance(other, Exponent):
             return False
 
         return (self.left == other.left and self.right == other.right)
@@ -194,6 +194,15 @@ class Constant:
 
     def __init__(self,value):
         self.value = value
+
+    def eval(self):
+        
+        return self
+
+        # if isinstance(self.value, (int, float)):
+            # return self.value
+
+        # return self.value.eval()
 
     def __str__(self):
         return str(self.value)
@@ -226,13 +235,6 @@ class Constant:
 
     def __pow__(self,exp):
         return Exponent(self,exp)
-
-    def eval(self):
-        
-        if isinstance(self.value, (int, float)):
-            return self.value
-
-        return self.value.eval()
 
 class Variable:
 

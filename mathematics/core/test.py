@@ -7,6 +7,8 @@ z = Variable('z')
 
 one = Constant(1)
 two = Constant(2)
+expr = one + two
+print(type(expr.eval()))
 
 expr = one * x
 print(expr.eval())
