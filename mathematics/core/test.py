@@ -1,13 +1,13 @@
 from core import *
 
-# x = Variable('x')
-# y = Variable('y')
+a = Variable('a')
+x = Variable('x')
+y = Variable('y')
+z = Variable('z')
 
-# expr = (x**2) * (y**2)
-# expr = 3 * x * 3
-# expr = 3*x + 2*x
-expr = (Constant(1) + Constant(3)) + Constant(2)
-expr = Constant(3) * Constant(2) * Constant(4)
+one = Constant(1)
+two = Constant(2)
 
-print(expr)
+expr = one * x
 print(expr.eval())
+print(type(expr.eval()))

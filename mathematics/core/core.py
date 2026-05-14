@@ -46,7 +46,7 @@ class Add(BinaryOp):
 
     Add the left and right nodes.
 
-    Child of BinaryOp class.
+    Child of the BinaryOp class.
 
     """
 
@@ -60,6 +60,17 @@ class Add(BinaryOp):
     def __str__(self):
         
         return f"({self.left} + {self.right})"
+
+    def __repr__(self):
+        
+        return f"Add({self.left.__repr__()}, {self.right.__repr__()})"
+
+    def __eq__(self,other):
+
+        if not isinstance(Add):
+            return False
+
+        return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
 
     def __add__(self,other):
 
@@ -81,16 +92,38 @@ class Add(BinaryOp):
 
 class Multiply(BinaryOp):
 
+    """
+
+    Multiply the left and right nodes.
+
+    Child of the BinaryOp class
+
+    """
+
     def eval(self):
 
-        l = ensure_node(self.left.eval())
-        r = ensure_node(self.right.eval())
+        l = self.left.eval()
+        r = self.right.eval()
+        
+        if isinstance(l,(int,float)) and isinstance(r,(int,float)):
+            return Constant(l*r)
 
         return l * r
 
     def __str__(self):
 
-        return f"{self.left.eval()} * {self.right.eval()}"
+        return f"{self.left} * {self.right}"
+
+    def __repr__(self):
+
+        return f"Multiply({self.left.__repr__()}, {self.right.__repr__()})"
+
+    def __eq__(self,other):
+        
+        if not isinstance(other, Multiply):
+            return False
+
+        return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
 
     def __add__(self,other):
         return Add(self,other)
@@ -99,20 +132,12 @@ class Multiply(BinaryOp):
         return Add(self,other)
 
     def __mul__(self,other):
+
         return Multiply(self,other)
 
     def __rmul__(self,other):
         return self.__mul__(other)
 
-
-class Divide(BinaryOp):
-
-    def eval(self):
-
-        l = self.left.eval()
-        r = self.right.eval()
-
-        return l / r
 
 class Exponent(BinaryOp): # has many issues - no simplification for addition or multiplication yet
     
@@ -136,22 +161,23 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
 
         return f"{l} ** {r}"
 
+    def __repr__(self):
+
+        return f"Exponent({self.left.__repr__()},{self.right.__repr__()})"
+
+    def __eq__(self,other):
+
+        if not isinstance(Exponent):
+            return False
+
+        return (self.left == other.left and self.right == other.right)
+
     def __mul__(self,other):
 
         if (isinstance(other,Constant)):
             return Multiply(other,self)
 
-        if (isinstance(other, Exponent)): # for now, the implementation will just ignore nested exponents (like if other.right is Multiply(Add(Exponent('x'),Exponent('x')) or something
-
-            if (isinstance(other.eval(),Exponent)):
-
-                if (self.right.eval() == other.right.eval()) and (self.left.eval() == other.left.eval()):
-
-                    return Exponent(self.left, other.eval().right + self.right)
-                else:
-                    return Multiply(self,other)
-
-        return Constant(1)
+        # TODO: mul implementation
 
     def __rmul__(self,other):
         return self.__mul__(other)
@@ -165,6 +191,17 @@ class Constant:
 
     def __str__(self):
         return str(self.value)
+
+    def __repr__(self):
+
+        return f"Constant({self.value})"
+
+    def __eq__(self,other):
+
+        if not isinstance(other, Constant):
+            return False
+
+        return self.value == other.value
 
     def __add__(self, other):
         return Add(self, other)
@@ -195,6 +232,12 @@ class Variable:
 
     def __init__(self,symbol):
         self.symbol=symbol
+    
+    def __str__(self):
+        return f"{self.symbol}"
+
+    def __repr__(self):
+        return f"Variable('{self.symbol}')"
 
     def __mul__(self,other):
         return Multiply(self,other)
@@ -206,7 +249,7 @@ class Variable:
         return Add(self,other)
 
     def __radd__(self,other):
-        return Add(self,other)
+        return self.__add__(other)
 
     def __pow__(self,exponent):
 
@@ -216,12 +259,8 @@ class Variable:
 
         return self
 
-    def __str__(self):
-
-        return f"{self.symbol}"
-
 def ensure_node(node):
-
+    
     if (isinstance(node,(int,float))):
         return Constant(node)
 
