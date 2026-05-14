@@ -111,8 +111,8 @@ class Multiply(BinaryOp):
         l = self.left.eval()
         r = self.right.eval()
         
-        if isinstance(l,(int,float)) and isinstance(r,(int,float)):
-            return Constant(l*r)
+        if isinstance(l,Constant) and isinstance(r,Constant):
+            return Constant(l.value * r.value)
 
         return l * r
 
