@@ -158,7 +158,10 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         if (right==1):
             return left
 
-        return left**right
+        if isinstance(left, Constant) and isinstance(right, Constant):
+            return Constant(left.value ** right.value)
+
+        return Constant(left**right)
 
     def __str__(self):
 
