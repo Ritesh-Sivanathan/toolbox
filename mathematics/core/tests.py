@@ -9,7 +9,7 @@ class ConstantBinaryOperations(unittest.TestCase):
 
     def test_AddConstantConstant(self):
         expr = self.one + self.two
-        self.assertEqual(expr, self.three)
+        self.assertEqual(expr.eval(), self.three)
 
 class VariableBinaryOperations(unittest.TestCase):
 

@@ -55,6 +55,12 @@ class Add(BinaryOp):
         l = self.left.eval()
         r = self.right.eval()
 
+        
+        # this feels really iffy... but it works for now - will get rid of specific type checks for returns later
+
+        if isinstance(l,(int,float)) and isinstance(r,(int,float)): 
+           return Constant(l+r) 
+
         return l + r
 
     def __str__(self):
@@ -67,7 +73,7 @@ class Add(BinaryOp):
 
     def __eq__(self,other):
 
-        if not isinstance(Add, other):
+        if not isinstance(other, Add):
             return False
 
         return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
