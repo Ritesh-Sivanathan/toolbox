@@ -23,6 +23,9 @@ class BinaryOp:
         self.left=ensure_node(left)
         self.right=ensure_node(right)
 
+    def __repr__(self):
+        return f"{type(self).__name__}({self.left.__repr__()}, {self.right.__repr__()})"
+
     def __add__(self,other):
         return Add(self,other)
 
@@ -39,6 +42,44 @@ class BinaryOp:
 
         return self.left == other.left and self.right == other.right
 
+class DataType:
+
+    """
+
+    DataType Object
+
+    Consists of all dunder functions for Constant and Variable classes
+
+    """
+
+    def __init__(self,value):
+        self.value = value
+
+    def __str__(self):
+        return (f"{self.value}")
+    
+    def __repr__(self):
+
+        return f"{type(self).__name__}({self.value})"
+
+    def __eq__(self,other):
+
+        if not isinstance(other, (Constant, Variable)):
+            return False
+
+        return self.value == other.value
+
+    def __add__(self, other):
+        return Add(self, other)
+
+    def __radd__(self,other):
+        return Add(self,other)
+
+    def __mul__(self,other):
+        return Multiply(self,other)
+
+    def __pow__(self,exponent):
+        return Exponent(self,exponent)
 
 class Add(BinaryOp):
 
@@ -66,10 +107,6 @@ class Add(BinaryOp):
     def __str__(self):
         
         return f"({self.left} + {self.right})"
-
-    def __repr__(self):
-        
-        return f"Add({self.left.__repr__()}, {self.right.__repr__()})"
 
     def __eq__(self,other):
 
@@ -102,10 +139,6 @@ class Multiply(BinaryOp):
 
         return f"{self.left} * {self.right}"
 
-    def __repr__(self):
-
-        return f"Multiply({self.left.__repr__()}, {self.right.__repr__()})"
-
     def __eq__(self,other):
         
         if not isinstance(other, Multiply):
@@ -137,10 +170,6 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         r = self.right
 
         return f"({l} ** {r})"
-
-    def __repr__(self):
-
-        return f"Exponent({self.left.__repr__()},{self.right.__repr__()})"
 
     def __eq__(self,other):
 
@@ -176,85 +205,13 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
 
     # TODO: __add__ method
 
-class Constant:
-
-    def __init__(self,value):
-        self.value = value
+class Constant(DataType):
 
     def eval(self):
         
         return self
 
-        # if isinstance(self.value, (int, float)):
-            # return self.value
-
-        # return self.value.eval()
-
-    def __str__(self):
-        return str(self.value)
-
-    def __repr__(self):
-
-        return f"Constant({self.value})"
-
-    def __eq__(self,other):
-
-        if not isinstance(other, Constant):
-            return False
-
-        return self.value == other.value
-
-    def __add__(self, other):
-        return Add(self, other)
-
-    def __radd__(self,other):
-        return Add(self,other)
-
-    # def __sub__(self,other):
-        # return Add(self,other)
-
-    def __mul__(self,other):
-        return Multiply(self,other)
-
-    # def __truediv__(self,other):
-        # return Divide(self,other)
-
-    def __pow__(self,exp):
-        return Exponent(self,exp)
-
-class Variable:
-
-    def __init__(self,symbol):
-        self.symbol=symbol
-
-    def __str__(self):
-        return f"{self.symbol}"
-
-    def __repr__(self):
-        return f"Variable('{self.symbol}')"
-
-    def __eq__(self, other):
-
-        if not isinstance(other, Variable):
-            return False
-
-        return self.symbol == other.symbol
-
-    def __mul__(self,other):
-        return Multiply(self,other)
-
-    def __rmul__(self,other):
-        return self.__mul__(other)
-
-    def __add__(self,other):
-        return Add(self,other)
-
-    def __radd__(self,other):
-        return self.__add__(other)
-
-    def __pow__(self,exponent):
-
-        return Exponent(self,exponent)
+class Variable(DataType):
 
     def eval(self):
 
