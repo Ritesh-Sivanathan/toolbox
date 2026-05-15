@@ -78,24 +78,6 @@ class Add(BinaryOp):
 
         return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
 
-    def __add__(self,other):
-
-        other = ensure_node(other)
-
-        return Add(self,other)
-
-    def __radd__(self,other):
-
-        other = ensure_node(other)
-
-        return Add(self,other)
-
-    def __mul__(self,other):
-        return Multiply(self, other)
-
-    def __rmul__(self,other):
-        return self.__mul__(other)
-
 class Multiply(BinaryOp):
 
     """
@@ -130,20 +112,6 @@ class Multiply(BinaryOp):
             return False
 
         return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
-
-    def __add__(self,other):
-        return Add(self,other)
-
-    def __radd__(self,other):
-        return Add(self,other)
-
-    def __mul__(self,other):
-
-        return Multiply(self,other)
-
-    def __rmul__(self,other):
-        return self.__mul__(other)
-
 
 class Exponent(BinaryOp): # has many issues - no simplification for addition or multiplication yet
     
@@ -191,8 +159,13 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
 
     def __mul__(self,other):
  
-        if not isinstance(other,(Exponent,Multiply)):
+        if not isinstance(other,(Exponent,(Multiply,Exponent))):
             return Multiply(self,other)
+
+        if isinstance(other, Exponent):
+            
+            if self.other == other.left: # same bases
+                pass
 
         raise NotImplementedError("Multiplication of exponents is not implemented yet")
 
