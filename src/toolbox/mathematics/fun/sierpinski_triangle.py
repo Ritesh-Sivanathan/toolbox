@@ -1,4 +1,4 @@
-from mathematics.linear_algebra.matrices import Matrix
+from ..mathematics.linear_algebra.matrices import Matrix
 
 import matplotlib.pyplot as plt
 import random

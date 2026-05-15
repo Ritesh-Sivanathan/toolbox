@@ -13,6 +13,9 @@ from mathematics.core.base import Constant
 x = Constant(1)
 y = Constant(2)
 
-expr = (Constant(1) + Constant(2)) + Constant(3) - Constant(6)
-expr = 5 - Constant(1)
+# expr = (Constant(1) + Constant(2)) + Constant(3) - Constant(6)
+# expr = 5 - Constant(1)
+
+expr = Constant(Constant(3)+Constant(8)) * Constant(4)
+
 print(expr.evaluate())
