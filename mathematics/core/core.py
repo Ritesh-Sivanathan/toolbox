@@ -37,7 +37,7 @@ class BinaryOp:
 
     def __eq__(self,other):
 
-        return (self.left == other.left, self.right == other.right)
+        return self.left == other.left and self.right == other.right
 
 
 class Add(BinaryOp):
