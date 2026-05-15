@@ -237,14 +237,14 @@ class Constant:
     def __radd__(self,other):
         return Add(self,other)
 
-    def __sub__(self,other):
-        return Subtract(self,other)
+    # def __sub__(self,other):
+        # return Add(self,other)
 
     def __mul__(self,other):
         return Multiply(self,other)
 
-    def __truediv__(self,other):
-        return Divide(self,other)
+    # def __truediv__(self,other):
+        # return Divide(self,other)
 
     def __pow__(self,exp):
         return Exponent(self,exp)
