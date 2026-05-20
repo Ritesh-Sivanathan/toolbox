@@ -106,7 +106,7 @@ class Add(BinaryOp):
 
     def __str__(self):
         
-        return f"({self.left} + {self.right})"
+        return f"{self.left} + {self.right}"
 
     def __eq__(self,other):
 
@@ -133,11 +133,74 @@ class Multiply(BinaryOp):
         if isinstance(l,Constant) and isinstance(r,Constant):
             return Constant(l.value * r.value)
 
+        if isinstance(l, Add): # (a+b) * (c+d) OR (a+b) * (cd) OR (a+b) * z
+            
+            l_1 = l.left.eval()
+            l_2 = l.right.eval()
+            
+            if isinstance(r, Add):
+
+                r_1 = r.left.eval()
+                r_2 = r.right.eval()
+
+                expanded = l_1 * r_1 + l_1 * r_2 + l_2 * r_1 + l_2 * r_2
+
+                return expanded.eval()
+
+            elif isinstance(r, Multiply):
+
+                r_1 = r.left.eval()
+                r_2 = r.right.eval()
+
+                expanded = l_1*r_1*r_2 + l_2*r_1*r_2
+
+                return expanded.eval()
+
+            else: 
+
+                expanded = l_1 * r + l_2 * r
+
+                return expanded.eval()
+
+        if isinstance(l, Multiply): # (ab)(c+d) OR (ab)(cd) OR (ab)(z)
+
+            l_1 = l.left.eval()
+            l_2 = l.right.eval()
+
+            if isinstance(r, (Add,Multiply)):
+                
+                r_1 = r.left.eval()
+                r_2 = r.right.eval()
+
+                if isinstance(r, Add):
+                    expanded = l_1 * l_2 * r_1 + l_1 * l_2 * r_2
+                
+                if isinstance(r, Multiply):
+                    expanded = l_1 * l_2 * l_3 * l_4
+
+                return expanded.eval()
+
+            else:
+
+                expanded = l_1 * l_2 * r
+
+                return expanded.eval()
+
+
+        if isinstance(l, Variable) and isinstance(r, Variable):
+
+            if l == r:
+                return Exponent(l,Constant(2))
+
+        if isinstance(l, Variable) and isinstance(r, Exponent):
+            if r.left == l:
+                return Exponent(l,r.right.eval()+1)
+
         return l * r
 
     def __str__(self):
 
-        return f"{self.left} * {self.right}"
+        return f"({self.left}) * ({self.right})"
 
     def __eq__(self,other):
         
