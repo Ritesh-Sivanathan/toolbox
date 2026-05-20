@@ -164,10 +164,12 @@ class Multiply(BinaryOp):
 
         if isinstance(l, Multiply): # (ab)(c+d) OR (ab)(cd) OR (ab)(z)
 
+            # TO FIX: DOES NOT WORK!
+
             l_1 = l.left.eval()
             l_2 = l.right.eval()
 
-            if isinstance(r, (Add,Multiply)):
+            if isinstance(r, Multiply):
                 
                 r_1 = r.left.eval()
                 r_2 = r.right.eval()
