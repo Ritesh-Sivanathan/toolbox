@@ -55,6 +55,9 @@ class DataType:
     def __init__(self,value):
         self.value = value
 
+    def expand(self):
+        return self
+
     def __str__(self):
         return (f"{self.value}")
     
@@ -104,6 +107,10 @@ class Add(BinaryOp):
 
         return l + r
 
+    def expand(self):
+
+        return Add(self.left.expand(), self.right.expand())
+
     def __str__(self):
         
         return f"{self.left} + {self.right}"
@@ -143,6 +150,19 @@ class Multiply(BinaryOp):
                 return Exponent(l,r.right.eval()+1)
 
         return l * r
+
+    def expand(self):
+
+        left = self.left.expand()
+        right = self.right.expand()
+
+        if isinstance(left, Add):
+            return ((left.left * right) + (left.right * right)).expand()
+
+        if isinstance(right, Add):
+            return ((left*right.left) + (left*right.right)).expand()
+
+        return left * right
 
     def __str__(self):
 
