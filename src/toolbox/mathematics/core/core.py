@@ -81,6 +81,9 @@ class DataType:
     def __mul__(self,other):
         return Multiply(self,other)
 
+    def __rmul__(self,other):
+        return self.__mul__(other)
+
     def __pow__(self,exponent):
         return Exponent(self,exponent)
 
@@ -98,7 +101,6 @@ class Add(BinaryOp):
 
         l = self.left.eval()
         r = self.right.eval()
-
         
         # this feels really iffy... but it works for now - will get rid of specific type checks for returns later
 
