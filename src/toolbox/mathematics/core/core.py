@@ -25,6 +25,40 @@ class BinaryOp:
 
     def __repr__(self):
         return f"{type(self).__name__}({self.left.__repr__()}, {self.right.__repr__()})"
+    
+    def __key__(self):
+        return (self.left, self.right)
+
+    def __hash__(self):
+        return hash(self.__key__())
+
+    def get_polynomial_terms(self):
+        
+        left = self.left.get_polynomial_terms()
+        right = self.right.get_polynomial_terms()
+
+        simple_polynomial = {}
+
+        print(f"Left: {self.left}, Right: {self.right}")
+
+        for key, val in left.items():
+
+            print("K", key)
+            print("V", val)
+
+            if key in simple_polynomial:
+                simple_polynomial[key] += val
+            else:
+                simple_polynomial[key] = val
+
+        for key, val in right.items():
+
+            if key in simple_polynomial:
+                simple_polynomial[key] += val
+            else:
+                simple_polynomial[key] = val
+
+        return simple_polynomial
 
     def __add__(self,other):
         return Add(self,other)
@@ -57,6 +91,19 @@ class DataType:
 
     def expand(self):
         return self
+
+    def __key__(self):
+        return (self.value)
+
+    def __hash__(self):
+        return hash(self.__key__())
+
+    def get_polynomial_terms(self):
+
+        if isinstance(self.value, int):
+            return { Constant(1): self.value }
+
+        return { Variable(self.value): 1 }
 
     def __str__(self):
         return (f"{self.value}")
@@ -194,6 +241,13 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
             return Constant(left.value ** right.value)
 
         return left**right
+    
+    def __hash__(self):
+        return hash((self.__class__.__name__, self.base, self.power))
+
+    def get_polynomial_terms(self):
+
+        return { Exponent(self.left,self.right): 1 }
 
     def __str__(self):
 
@@ -246,7 +300,7 @@ class Variable(DataType):
 
     def eval(self):
 
-        return self
+        return self 
 
 def ensure_node(node):
     
