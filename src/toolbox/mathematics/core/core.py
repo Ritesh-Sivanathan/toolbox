@@ -2,20 +2,25 @@ class BinaryOp:
 
     """
 
-    Binary Operation. All binary operations inherit methods and properties from this class.
+    Binary Operation
 
-    Properties/Attributes:
+    ### Attributes
 
-        `self.left` (`Node`)
-        `self.right` (`Node`)
+        self.left -> Node
+        self.right -> Node
 
-    Ensures both the right and left nodes are actually nodes.
+    ### Methods
 
-    Currently implemented methods for BinaryOps:
+        __repr__
+        __key__
+        __hash__
+        __add__
+        __radd__
+        __mul__
+        __rmul__
+        __eq__
 
-    - Add
-    - Multiply
-    - Equivalence
+        poly_count()
 
     """
 
@@ -25,26 +30,32 @@ class BinaryOp:
 
     def __repr__(self):
         return f"{type(self).__name__}({self.left.__repr__()}, {self.right.__repr__()})"
-    
+
     def __key__(self):
         return (self.left, self.right)
 
     def __hash__(self):
         return hash(self.__key__())
+ 
+    def poly_count(self) -> dict:
 
-    def get_polynomial_terms(self):
+        """
+
+        Collects and counts all polynomial terms.
+
+        Returns a dictionary with the count of each polynomial type.
+
+        *Used for expansion and simplification ops.*
+
+        """
+
         
-        left = self.left.get_polynomial_terms()
-        right = self.right.get_polynomial_terms()
+        left = self.left.poly_count()
+        right = self.right.poly_count()
 
         simple_polynomial = {}
 
-        print(f"Left: {self.left}, Right: {self.right}")
-
         for key, val in left.items():
-
-            print("K", key)
-            print("V", val)
 
             if key in simple_polynomial:
                 simple_polynomial[key] += val
@@ -79,10 +90,29 @@ class BinaryOp:
 class DataType:
 
     """
+    
+    DataType
 
-    DataType Object
+    ### Attributes
 
-    Consists of all dunder functions for Constant and Variable classes
+        `self.value` -> `Int | Node`
+
+    ### Methods
+
+        `expand()`
+        `poly_count()`
+        `__key__`
+        `__hash__`
+        `__repr__`
+        `__str__`
+        `__eq__`
+        `__add__`
+        `__radd__`
+        `__mul__`
+        `__rmul__`
+        `__eq__`
+
+        `poly_count()`
 
     """
 
@@ -92,18 +122,18 @@ class DataType:
     def expand(self):
         return self
 
+    def poly_count(self):
+
+        if isinstance(self.value, int):
+            return { 1: self.value }
+
+        return { Variable(self.value): 1 }
+
     def __key__(self):
         return (self.value)
 
     def __hash__(self):
         return hash(self.__key__())
-
-    def get_polynomial_terms(self):
-
-        if isinstance(self.value, int):
-            return { Constant(1): self.value }
-
-        return { Variable(self.value): 1 }
 
     def __str__(self):
         return (f"{self.value}")
@@ -138,19 +168,32 @@ class Add(BinaryOp):
 
     """
 
-    Add the left and right nodes.
+    Add
 
-    Child of the BinaryOp class.
+    Add the left and right nodes.
+    
+    ### Methods
+
+        `eval()`
+        `expand()`
+        `__str__`
+        `__eq__`
 
     """
 
-    def eval(self):
+    def eval(self) -> DataType | BinaryOp:
+
+        """
+
+        Returns the result of adding `self.left` and `self.right`.
+
+        Return type may be a DataType or a BinaryOp.
+
+        """
 
         l = self.left.eval()
         r = self.right.eval()
         
-        # this feels really iffy... but it works for now - will get rid of specific type checks for returns later
-
         if isinstance(l,Constant) and isinstance(r,Constant):
            return Constant(l.value + r.value)
 
@@ -185,7 +228,18 @@ class Multiply(BinaryOp):
 
         l = self.left.eval()
         r = self.right.eval()
-        
+
+        # TODO: figure out how to make all this manual crap simpler
+
+        if (l == Constant(0) or r == Constant(0)): 
+            return Constant(0)
+
+        if isinstance(l,Constant) and l.value == 1: # 1 * r = r
+            return r
+
+        if isinstance(r,Constant) and r.value == 1: # l * 1 = l
+            return l
+ 
         if isinstance(l,Constant) and isinstance(r,Constant):
             return Constant(l.value * r.value)
 
@@ -194,11 +248,22 @@ class Multiply(BinaryOp):
             if l == r:
                 return Exponent(l,Constant(2))
 
+        if isinstance(l, Exponent) and isinstance(r, Variable):
+            if l.left == r:
+                return Exponent(r,(l.right.eval()+1).eval())
+        
         if isinstance(l, Variable) and isinstance(r, Exponent):
             if r.left == l:
-                return Exponent(l,r.right.eval()+1)
+                return Exponent(l,(r.right.eval()+1).eval())
+
+        if isinstance(l, Exponent) and isinstance(r, Exponent):
+            if l.left == r.left:
+                return Exponent(l.left, (l.right + r.right).eval())
 
         return l * r
+    
+    def __hash__(self):
+        return hash((self.__class__.__name__, self.left, self.right))
 
     def expand(self):
 
@@ -206,12 +271,44 @@ class Multiply(BinaryOp):
         right = self.right.expand()
 
         if isinstance(left, Add):
-            return ((left.left * right) + (left.right * right)).expand()
+            return (left.left * right + left.right * right).expand()
 
         if isinstance(right, Add):
-            return ((left*right.left) + (left*right.right)).expand()
+            return (left*right.left + left*right.right).expand()
+
+        if isinstance(left,(Variable,Constant)) and isinstance(right,(Multiply,Add)):
+            return (left*right.left*right.right)
 
         return left * right
+
+    def poly_count(self):
+
+        if isinstance(self.left, (Variable, Exponent)) and isinstance(self.right, Constant):
+            return { self.left : self.right.value }
+
+        if isinstance(self.left, Constant) and isinstance(self.right, (Variable, Exponent)):
+            return { self.right : self.left.value }
+
+        left = self.left.poly_count()
+        right = self.right.poly_count()
+
+        simple_polynomial = {}
+
+        for key, val in left.items():
+
+            if key in simple_polynomial:
+                simple_polynomial[key] += val
+            else:
+                simple_polynomial[key] = val
+
+        for key, val in right.items():
+
+            if key in simple_polynomial:
+                simple_polynomial[key] += val
+            else:
+                simple_polynomial[key] = val
+
+        return simple_polynomial
 
     def __str__(self):
 
@@ -224,7 +321,7 @@ class Multiply(BinaryOp):
 
         return (self.left == other.left and self.right == other.right) or (self.left == other.right and self.right == other.left)
 
-class Exponent(BinaryOp): # has many issues - no simplification for addition or multiplication yet
+class Exponent(BinaryOp): 
     
     def eval(self):
 
@@ -245,9 +342,12 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
     def __hash__(self):
         return hash((self.__class__.__name__, self.left, self.right))
 
-    def get_polynomial_terms(self):
+    def poly_count(self):
 
         return { Exponent(self.left,self.right): 1 }
+
+    def expand(self):
+        return self
 
     def __str__(self):
 
@@ -271,24 +371,8 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         if self == other: # exact same exponent
             return Multiply(Constant(2), self) # you get two of them
 
-    def __mul__(self,other):
- 
-        if not isinstance(other,(Exponent,(Multiply,Exponent))):
-            return Multiply(self,other)
-
-        if isinstance(other, Exponent):
-            
-            if self.other == other.left: # same bases
-                pass
-
-        raise NotImplementedError("Multiplication of exponents is not implemented yet")
-
-        # TODO: mul implementation
-
     def __rmul__(self,other):
         return self.__mul__(other)
-
-    # TODO: __add__ method
 
 class Constant(DataType):
 
