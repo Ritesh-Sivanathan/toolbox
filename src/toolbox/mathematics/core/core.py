@@ -243,7 +243,7 @@ class Exponent(BinaryOp): # has many issues - no simplification for addition or 
         return left**right
     
     def __hash__(self):
-        return hash((self.__class__.__name__, self.base, self.power))
+        return hash((self.__class__.__name__, self.left, self.right))
 
     def get_polynomial_terms(self):
 
