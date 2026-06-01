@@ -90,7 +90,7 @@ class DataType:
         if isinstance(self, Constant):
             return { Constant(1): self.value }
 
-        return { Variable('x'): 1 }
+        return { self: 1 }
 
     def __neg__(self):
         return Constant(-1) * self
@@ -205,8 +205,8 @@ class Add(BinaryOp):
                 simplified_tree[key] = new_val
 
             elif key not in simplified_tree:
-                simplified_tree[key] = value
-                
+                simplified_tree[key] = value 
+
         return simplified_tree
 
     def expand(self):
@@ -248,13 +248,18 @@ class Multiply(BinaryOp):
         simplified_tree = {}
 
         for key, value in left.items():
-    
+
             if key in simplified_tree:
             
                 new_key = (key*key).eval()
                 new_val = simplified_tree[key] * value
+
                 del simplified_tree[key]
-                simplified_tree[new_key] = new_val
+
+                if isinstance(new_key, BinaryOp):
+                    simplified_tree[(new_key.left.gpc(), newkey.right.gpc())] = new_val
+                else:
+                    simplified_tree[new_key] = new_val
             
             elif key not in simplified_tree:
                 simplified_tree[key] = value
@@ -265,8 +270,14 @@ class Multiply(BinaryOp):
             
                 new_key = (key*key).eval()
                 new_val = simplified_tree[key] * value
+                
                 del simplified_tree[key]
-                simplified_tree[new_key] = new_val
+
+                if isinstance(new_key, BinaryOp):
+                    simplified_tree[(new_key.left.gpc(), newkey.right.gpc())] = new_val
+                else:
+                    simplified_tree[new_key] = new_val
+
             elif key not in simplified_tree:
                 simplified_tree[key] = value
 
@@ -276,7 +287,24 @@ class Multiply(BinaryOp):
             for key, val in simplified_tree.items():
                 simplified_tree[key] = val * scalar
 
-        return simplified_tree
+        # TEMPORARY CODE
+        # TODO: make this neater!
+
+        new_tree = {}
+        sole_key=None
+
+        for key, value in simplified_tree.items():
+            if len(new_tree) == 0:
+                new_tree[key] = value
+                sole_key=key
+            else:
+                new_key = sole_key * key
+                new_val = new_tree[sole_key] * value
+                del new_tree[sole_key]
+                sole_key = new_key
+                new_tree[new_key] = new_val
+
+        return new_tree
 
     def simplify(self):
 
