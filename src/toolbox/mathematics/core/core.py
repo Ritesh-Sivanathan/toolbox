@@ -20,8 +20,6 @@ class BinaryOp:
         __rmul__
         __eq__
 
-        poly_count()
-
     """
 
     def __init__(self,left,right):
@@ -37,39 +35,6 @@ class BinaryOp:
     def __hash__(self):
         return hash(self.__key__())
  
-    def poly_count(self) -> dict:
-
-        """
-
-        Collects and counts all polynomial terms.
-
-        Returns a dictionary with the count of each polynomial type.
-
-        *Used for expansion and simplification ops.*
-
-        """
-        
-        left = self.left.poly_count()
-        right = self.right.poly_count()
-
-        simple_polynomial = {}
-
-        for key, val in left.items():
-
-            if key in simple_polynomial:
-                simple_polynomial[key] += val # Add the coefficients of like terms
-            else:
-                simple_polynomial[key] = val
-
-        for key, val in right.items():
-
-            if key in simple_polynomial:
-                simple_polynomial[key] += val # Add the coefficients of like terms
-            else:
-                simple_polynomial[key] = val
-
-        return simple_polynomial
-
     def __add__(self,other):
         return Add(self,other)
 
@@ -99,19 +64,18 @@ class DataType:
     ### Methods
 
         `expand()`
-        `poly_count()`
         `__key__`
         `__hash__`
         `__repr__`
         `__str__`
+        `__neg__`
         `__eq__`
         `__add__`
         `__radd__`
+        `__sub__`
         `__mul__`
         `__rmul__`
         `__eq__`
-
-        `poly_count()`
 
     """
 
@@ -121,22 +85,15 @@ class DataType:
     def expand(self):
         return self
 
-    def poly_count(self) -> dict:
+    def gpc(self):
         
-        """
+        if isinstance(self, Constant):
+            return { Constant(1): self.value }
 
-        Collects and counts all polynomial terms.
+        return { Variable('x'): 1 }
 
-        Returns a dictionary with the count of each polynomial type.
-
-        *Used for expansion and simplification ops.*
-
-        """
-
-        if isinstance(self.value, int):
-            return { 1: self.value }
-
-        return { Variable(self.value): 1 }
+    def __neg__(self):
+        return Constant(-1) * self
 
     def __key__(self):
         return (self.value)
@@ -163,6 +120,12 @@ class DataType:
 
     def __radd__(self,other):
         return Add(self,other)
+
+    def __sub__(self,other):
+        return Add(self,-other)
+
+    def __rsub__(self,other):
+        return Add(-self,other)
 
     def __mul__(self,other):
         return Multiply(self,other)
@@ -207,13 +170,48 @@ class Add(BinaryOp):
         r = self.right.eval()
         
         if isinstance(l,Constant) and isinstance(r,Constant):
-           return Constant(l.value + r.value)
+            return Constant(l.value + r.value)        
+
+        if l == Constant(0):
+            return r
+        
+        if r == Constant(0):
+            return l
 
         return l + r
 
+    def gpc(self):
+
+        left = self.left.expand().eval().gpc()
+        right = self.right.expand().eval().gpc()
+
+        simplified_tree = {}
+
+        for key, value in left.items():
+            
+            if key in simplified_tree:
+                new_val = simplified_tree[key] + value
+                del simplified_tree[key]
+                simplified_tree[key] = new_val
+
+            elif key not in simplified_tree:
+                simplified_tree[key] = value
+
+        for key, value in right.items():
+            
+            if key in simplified_tree:
+                new_val = simplified_tree[key] + value
+                del simplified_tree[key]
+                simplified_tree[key] = new_val
+
+            elif key not in simplified_tree:
+                simplified_tree[key] = value
+                
+        return simplified_tree
+
     def expand(self):
 
-        return Add(self.left.expand(), self.right.expand())
+        return self.left.expand() + self.right.expand()
 
     def __str__(self):
         
@@ -236,12 +234,65 @@ class Multiply(BinaryOp):
 
         `eval()`
         `expand()`
-        `poly_count()`
         `__hash__`
         `__str__`
         `__eq__`
 
     """
+
+    def gpc(self):
+
+        left = self.left.expand().eval().gpc()
+        right = self.right.expand().eval().gpc()
+
+        simplified_tree = {}
+
+        for key, value in left.items():
+    
+            if key in simplified_tree:
+            
+                new_key = (key*key).eval()
+                new_val = simplified_tree[key] * value
+                del simplified_tree[key]
+                simplified_tree[new_key] = new_val
+            
+            elif key not in simplified_tree:
+                simplified_tree[key] = value
+
+        for key, value in right.items():
+
+            if key in simplified_tree:
+            
+                new_key = (key*key).eval()
+                new_val = simplified_tree[key] * value
+                del simplified_tree[key]
+                simplified_tree[new_key] = new_val
+            elif key not in simplified_tree:
+                simplified_tree[key] = value
+
+        if Constant(1) in simplified_tree:
+            scalar = simplified_tree[Constant(1)]
+            del simplified_tree[Constant(1)]
+            for key, val in simplified_tree.items():
+                simplified_tree[key] = val * scalar
+
+        return simplified_tree
+
+    def simplify(self):
+
+        order = [Constant, Variable, Exponent]
+        stack = []
+
+        for o in order:
+            if isinstance(self.left, o):
+                stack.append(self.left)
+            if isinstance(self.right, o):
+                stack.append(self.right)
+
+        l = stack[0]
+        r = stack[1]
+
+        return l*r
 
     def eval(self):
 
@@ -279,12 +330,12 @@ class Multiply(BinaryOp):
             if l.left == r.left:
                 return Exponent(l.left, (l.right + r.right).eval())
 
-        return l * r
+        return (l * r)
     
     def expand(self):
 
-        left = self.left.expand()
-        right = self.right.expand()
+        left = self.left.expand().eval() # TODO: should eval even be called here? it doesn't simplify otherwise...
+        right = self.right.expand().eval() 
 
         if isinstance(left, Add):
             return (left.left * right + left.right * right).expand()
@@ -293,48 +344,9 @@ class Multiply(BinaryOp):
             return (left*right.left + left*right.right).expand()
 
         if isinstance(left,(Variable,Constant)) and isinstance(right,(Multiply,Add)):
-            return (left*right.left*right.right)
+            return (left*right.left*right.right).expand()
 
         return left * right
-
-    def poly_count(self) -> dict:
-
-        """
-
-        Collects and counts all polynomial terms.
-
-        Returns a dictionary with the count of each polynomial type.
-
-        *Used for expansion and simplification ops.*
-
-        """
-
-        if isinstance(self.left, (Variable, Exponent)) and isinstance(self.right, Constant):
-            return { self.left : self.right.value }
-
-        if isinstance(self.left, Constant) and isinstance(self.right, (Variable, Exponent)):
-            return { self.right : self.left.value }
-
-        left = self.left.poly_count()
-        right = self.right.poly_count()
-
-        simple_polynomial = {}
-
-        for key, val in left.items():
-
-            if key in simple_polynomial:
-                simple_polynomial[key] += val
-            else:
-                simple_polynomial[key] = val
-
-        for key, val in right.items():
-
-            if key in simple_polynomial:
-                simple_polynomial[key] += val
-            else:
-                simple_polynomial[key] = val
-
-        return simple_polynomial
 
     def __hash__(self):
         return hash((self.__class__.__name__, self.left, self.right))
@@ -358,13 +370,12 @@ class Exponent(BinaryOp):
 
     ### Attributes
 
-        `self.left` -> Node
+        `self.left` -> Nod
         `self.right` -> Node
 
     ### Methods
 
         eval()
-        poly_count()
         expand()
         __hash__
         __str__
@@ -389,23 +400,12 @@ class Exponent(BinaryOp):
 
         return left**right
     
-    def poly_count(self) -> dict:
-
-        """
-
-        Collects and counts all polynomial terms.
-
-        Returns a dictionary with the count of each polynomial type.
-
-        *Used for expansion and simplification ops.*
-
-        """
-
-        return { Exponent(self.left,self.right): 1 }
-
     def expand(self):
         return self
-   
+
+    def gpc(self):
+        return { self: 1 }
+
     def __hash__(self):
         return hash((self.__class__.__name__, self.left, self.right))
 
@@ -483,3 +483,12 @@ def ensure_node(node):
         return Constant(node)
 
     return node
+
+def reconstruct_tree(tree):
+
+    expr = Constant(0)
+
+    for key, value in tree.items():
+        expr += (value * key).eval()
+
+    return expr.eval()
