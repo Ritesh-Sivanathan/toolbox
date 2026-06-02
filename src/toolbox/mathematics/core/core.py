@@ -41,15 +41,27 @@ class BinaryOp:
     def __radd__(self,other):
         return self.__add__(other)
 
+    def __sub__(self,other):
+        return Add(self,-other)
+
+    def __rsub__(self,other):
+        return Add(other,-self)
+
     def __mul__(self,other):
+
         return Multiply(self,other)
 
     def __rmul__(self,other):
-        return self.__mul__(other)
+
+        return Multiply(other, self)
 
     def __eq__(self,other):
 
         return self.left == other.left and self.right == other.right
+
+    def __neg__(self):
+        
+        return -1 * self
 
 class DataType:
 
@@ -85,7 +97,7 @@ class DataType:
     def expand(self):
         return self
 
-    def gpc(self):
+    def construct_tree(self):
         
         if isinstance(self, Constant):
             return { Constant(1): self.value }
@@ -93,7 +105,11 @@ class DataType:
         return { self: 1 }
 
     def __neg__(self):
-        return Constant(-1) * self
+
+        if isinstance(self, Variable):
+            return Constant(-1) * self
+
+        return Constant(-1*self.value)
 
     def __key__(self):
         return (self.value)
@@ -149,14 +165,14 @@ class Add(BinaryOp):
     
     ### Methods
 
-        `eval()`
+        `simplify()`
         `expand()`
         `__str__`
         `__eq__`
 
     """
 
-    def eval(self) -> DataType | BinaryOp:
+    def simplify(self) -> DataType | BinaryOp:
 
         """
 
@@ -166,11 +182,14 @@ class Add(BinaryOp):
 
         """
 
-        l = self.left.eval()
-        r = self.right.eval()
+        l = self.left.simplify()
+        r = self.right.simplify()
         
         if isinstance(l,Constant) and isinstance(r,Constant):
             return Constant(l.value + r.value)        
+ 
+        if -1*l == r or l*-1 == r: # so it works for a general class
+            return Constant(0)
 
         if l == Constant(0):
             return r
@@ -178,12 +197,12 @@ class Add(BinaryOp):
         if r == Constant(0):
             return l
 
-        return l + r
+        return Add(l,r)
 
-    def gpc(self):
+    def construct_tree(self):
 
-        left = self.left.expand().eval().gpc()
-        right = self.right.expand().eval().gpc()
+        left = self.left.expand().simplify().construct_tree()
+        right = self.right.expand().simplify().construct_tree()
 
         simplified_tree = {}
 
@@ -232,7 +251,7 @@ class Multiply(BinaryOp):
 
     ### Methods
 
-        `eval()`
+        `simplify()`
         `expand()`
         `__hash__`
         `__str__`
@@ -240,26 +259,25 @@ class Multiply(BinaryOp):
 
     """
 
-    def gpc(self):
+    def construct_tree(self):
 
-        left = self.left.expand().eval().gpc()
-        right = self.right.expand().eval().gpc()
+        left = self.left.expand().simplify().construct_tree()
+        right = self.right.expand().simplify().construct_tree()
 
         simplified_tree = {}
+
+        # Tree simplification logic 
 
         for key, value in left.items():
 
             if key in simplified_tree:
             
-                new_key = (key*key).eval()
+                new_key = (key*key).simplify()
                 new_val = simplified_tree[key] * value
 
                 del simplified_tree[key]
 
-                if isinstance(new_key, BinaryOp):
-                    simplified_tree[(new_key.left.gpc(), newkey.right.gpc())] = new_val
-                else:
-                    simplified_tree[new_key] = new_val
+                simplified_tree[new_key] = new_val
             
             elif key not in simplified_tree:
                 simplified_tree[key] = value
@@ -268,15 +286,12 @@ class Multiply(BinaryOp):
 
             if key in simplified_tree:
             
-                new_key = (key*key).eval()
+                new_key = (key*key).simplify()
                 new_val = simplified_tree[key] * value
                 
                 del simplified_tree[key]
 
-                if isinstance(new_key, BinaryOp):
-                    simplified_tree[(new_key.left.gpc(), newkey.right.gpc())] = new_val
-                else:
-                    simplified_tree[new_key] = new_val
+                simplified_tree[new_key] = new_val
 
             elif key not in simplified_tree:
                 simplified_tree[key] = value
@@ -294,7 +309,7 @@ class Multiply(BinaryOp):
         sole_key=None
 
         for key, value in simplified_tree.items():
-            if len(new_tree) == 0:
+            if len(new_tree) == 0 and key:
                 new_tree[key] = value
                 sole_key=key
             else:
@@ -308,24 +323,8 @@ class Multiply(BinaryOp):
 
     def simplify(self):
 
-        order = [Constant, Variable, Exponent]
-        stack = []
-
-        for o in order:
-            if isinstance(self.left, o):
-                stack.append(self.left)
-            if isinstance(self.right, o):
-                stack.append(self.right)
-
-        l = stack[0]
-        r = stack[1]
-
-        return l*r
-
-    def eval(self):
-
-        l = self.left.eval()
-        r = self.right.eval()
+        l = self.left.simplify()
+        r = self.right.simplify()
 
         # TODO: figure out how to make all this manual crap simpler
 
@@ -348,22 +347,22 @@ class Multiply(BinaryOp):
 
         if isinstance(l, Exponent) and isinstance(r, Variable): # Exponent * Variable
             if l.left == r:
-                return Exponent(r,(l.right.eval()+1).eval())
+                return Exponent(r,(l.right.simplify()+1).simplify())
         
         if isinstance(l, Variable) and isinstance(r, Exponent): # Variable * Exponent
             if r.left == l:
-                return Exponent(l,(r.right.eval()+1).eval())
+                return Exponent(l,(r.right.simplify()+1).simplify())
 
         if isinstance(l, Exponent) and isinstance(r, Exponent): # Exponent * Exponent
             if l.left == r.left:
-                return Exponent(l.left, (l.right + r.right).eval())
+                return Exponent(l.left, (l.right + r.right).simplify())
 
-        return (l * r)
+        return Multiply(l,r)
     
     def expand(self):
 
-        left = self.left.expand().eval() # TODO: should eval even be called here? it doesn't simplify otherwise...
-        right = self.right.expand().eval() 
+        left = self.left.expand()
+        right = self.right.expand()
 
         if isinstance(left, Add):
             return (left.left * right + left.right * right).expand()
@@ -371,10 +370,10 @@ class Multiply(BinaryOp):
         if isinstance(right, Add):
             return (left*right.left + left*right.right).expand()
 
-        if isinstance(left,(Variable,Constant)) and isinstance(right,(Multiply,Add)):
-            return (left*right.left*right.right).expand()
+        # if isinstance(left,(Variable,Constant)) and isinstance(right,(Multiply,Add)):
+           #  return (left*right.left*right.right).expand()
 
-        return left * right
+        return Multiply(left,right)
 
     def __hash__(self):
         return hash((self.__class__.__name__, self.left, self.right))
@@ -382,6 +381,9 @@ class Multiply(BinaryOp):
     def __str__(self):
 
         return f"({self.left}) * ({self.right})"
+
+    def __neg__(self):
+        return -1 * self 
 
     def __eq__(self,other):
         
@@ -403,7 +405,7 @@ class Exponent(BinaryOp):
 
     ### Methods
 
-        eval()
+        simplify()
         expand()
         __hash__
         __str__
@@ -412,10 +414,10 @@ class Exponent(BinaryOp):
 
     """
     
-    def eval(self):
+    def simplify(self):
 
-        left = self.left.eval()
-        right = self.right.eval()
+        left = self.left.simplify()
+        right = self.right.simplify()
 
         if right == Constant(0): # left**0 = 0
             return Constant(1)
@@ -431,7 +433,7 @@ class Exponent(BinaryOp):
     def expand(self):
         return self
 
-    def gpc(self):
+    def construct_tree(self):
         return { self: 1 }
 
     def __hash__(self):
@@ -445,12 +447,11 @@ class Exponent(BinaryOp):
         return f"({l} ** {r})"
 
     def __add__(self,other):
-
-        if not isinstance(other, Exponent):
-            return Add(self,other)
-        
+ 
         if self == other: # Exact same nodes
             return Multiply(Constant(2), self) # Return 2*self
+
+        return Add(self,other)
 
     def __eq__(self,other):
 
@@ -471,11 +472,11 @@ class Constant(DataType):
 
     ### Methods
 
-        `eval` -> Constant
+        `simplify` -> Constant
 
     """
 
-    def eval(self):
+    def simplify(self):
         
         return self
 
@@ -491,11 +492,11 @@ class Variable(DataType):
 
     ### Methods
 
-        `eval` -> Variable
+        `simplify` -> Variable
 
     """
 
-    def eval(self):
+    def simplify(self):
 
         return self 
 
@@ -517,6 +518,6 @@ def reconstruct_tree(tree):
     expr = Constant(0)
 
     for key, value in tree.items():
-        expr += (value * key).eval()
+        expr += (value * key).simplify()
 
-    return expr.eval()
+    return expr.simplify()
