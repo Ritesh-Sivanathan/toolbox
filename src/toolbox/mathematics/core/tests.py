@@ -12,19 +12,19 @@ class ConstantBinaryOperations(unittest.TestCase):
 
     def test_AddConstantConstant(self):
         expr = Constant(1) + Constant(2)
-        self.assertEqual(expr.eval(), Constant(3))
+        self.assertEqual(expr.simplify(), Constant(3))
 
     def test_AddNestedConstantConstant(self):
         expr = (Constant(1) + Constant(2)) + Constant(3)
-        self.assertEqual(expr.eval(), Constant(6))
+        self.assertEqual(expr.simplify(), Constant(6))
 
     def test_AddConstantAndVariable(self):
         expr = Constant(1) + self.x
-        self.assertEqual(expr.eval(), Add(Constant(1), Variable('x')))
+        self.assertEqual(expr.simplify(), Add(Constant(1), Variable('x')))
 
     def test_BinOpsMultipleNestedConstants(self):
         expr = (Constant(1) + (Constant(3)+Constant(2))) + (Constant(2)*(Constant(3)*Constant(2)))
-        self.assertEqual(expr.eval(),Constant(18))
+        self.assertEqual(expr.simplify(),Constant(18))
 
 class VariableBinOps(unittest.TestCase):
 
@@ -37,15 +37,15 @@ class VariableBinOps(unittest.TestCase):
 
     def test_SimpleVarAdd(self):
         expr = self.a + self.b
-        self.assertEqual(expr.eval(),Add(self.a,self.b))
+        self.assertEqual(expr.simplify(),Add(self.a,self.b))
 
     def test_SimpleVarMul(self):
         expr = self.a * self.b
-        self.assertEqual(expr.eval(),Multiply(self.a,self.b))
+        self.assertEqual(expr.simplify(),Multiply(self.a,self.b))
 
     def test_SimplifyVarMul(self):
         expr = self.a * self.a
-        self.assertEqual(expr.eval(),Exponent(self.a, Constant(2)))
+        self.assertEqual(expr.simplify(),Exponent(self.a, Constant(2)))
 
 ''' Expand is still in development - uncomment after done
 
@@ -65,7 +65,7 @@ class ConstantUnaryOperations(unittest.TestCase):
 
     def test_ConstantPowConstant(self):
         expr = Constant(2) ** Constant(2)
-        self.assertEqual(expr.eval(), Constant(4))
+        self.assertEqual(expr.simplify(), Constant(4))
 
 if __name__ == "__main__":
     unittest.main()
